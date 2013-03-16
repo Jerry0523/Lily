@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.jerry.lily"
+    android:versionCode="7"
+    android:versionName="alpha" >
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="17" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+
+    <application
+        android:allowBackup="false"
+        android:hardwareAccelerated="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name" >
+        <activity
+            android:name=".Welcome"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".NewMail"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <service android:name=".UpdateService" />
+        <service android:name=".RefreshService" />
+
+        <activity
+            android:name=".Author"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".MenuActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
+            android:name=".ReplyArticle"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".MailActivity"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".Sign"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".Friends"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".Login"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".ArticleCollection"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".Block"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".Url"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".SearchArticle"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".AllBoard"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".SearchResult"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".Send2Me"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".BoardList"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".LilyActivity"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".Top"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".Board"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".Mail"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".About"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".Set"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".Center"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".Hot"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".PicView"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".ArticleActivity"
+            android:theme="@android:style/Theme.NoTitleBar" />
+    </application>
+
+</manifest>

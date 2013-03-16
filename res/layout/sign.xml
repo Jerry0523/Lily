@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="50dip"
+        android:background="@drawable/title_background" >
+
+        <Button
+            android:id="@+id/sign_exit"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/title_button_back"
+            android:minWidth="75dip"
+            android:text="@string/back"
+            android:textColor="@android:color/background_light" />
+
+        <Button
+            android:id="@+id/sign_submit"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/title_button"
+            android:minWidth="75dip"
+            android:text="@string/save"
+            android:textColor="@android:color/background_light" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/sign_ra1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dip"
+        android:layout_marginRight="15dip"
+        android:layout_marginTop="15dip" >
+
+        <ToggleButton
+            android:id="@+id/sign_precustom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/radio_button"
+            android:textOff=""
+            android:textOn="" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/sign_precustom"
+            android:src="@drawable/sign" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/sign_ra2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dip"
+        android:layout_marginRight="15dip"
+        android:layout_marginTop="15dip" >
+
+        <ToggleButton
+            android:id="@+id/sign_custom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/radio_button"
+            android:textOff=""
+            android:textOn="" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/sign_custom"
+            android:text="自定义"
+            android:textColor="#8a8b91"
+            android:textSize="17dip" />
+    </RelativeLayout>
+
+    <EditText
+        android:id="@+id/sign_sign"
+        android:layout_width="fill_parent"
+        android:layout_height="80dip"
+        android:layout_marginLeft="15dip"
+        android:layout_marginRight="15dip"
+        android:layout_marginTop="15dip"
+        android:background="@drawable/edit_text"
+        android:gravity="top"
+        android:hint="@string/sign_hint"
+        android:inputType="textMultiLine"
+        android:padding="5dip" />
+
+</LinearLayout>

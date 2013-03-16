@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="50dip"
+        android:background="@drawable/title_background" >
+
+        <Button
+            android:id="@+id/mreply_back"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/title_button_back"
+            android:minWidth="75dip"
+            android:text="@string/back"
+            android:textColor="@android:color/background_light" />
+
+        <com.jerry.widget.MarqueeTextView
+            android:id="@+id/mreply_title"
+            android:layout_width="180dip"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:ellipsize="marquee"
+            android:gravity="center"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:textSize="20dip" />
+
+        <Button
+            android:id="@+id/mreply_send"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/title_button"
+            android:minWidth="75dip"
+            android:text="@string/send"
+            android:textColor="@android:color/background_light" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:scrollbars="vertical"
+        android:layout_height="wrap_content" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:orientation="vertical"
+            android:layout_height="fill_parent" >
+
+            <TextView
+                android:id="@+id/mreply_content"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="10dip"
+                android:layout_marginTop="15dip"
+                android:paddingLeft="25dip"
+                android:paddingTop="10dip"
+                android:textSize="17dip"
+                android:paddingRight="10dip"
+                android:paddingBottom="20dip"
+                android:background="@drawable/chat_background"
+                android:textColor="@android:color/background_dark"/>
+
+            <EditText
+                android:id="@+id/mreply_reply"
+                android:layout_width="fill_parent"
+                android:layout_height="100dip"
+                android:background="@drawable/chat_background2"
+                android:gravity="top"
+                android:layout_marginLeft="15dip"
+                android:layout_marginTop="10dip"
+                android:layout_marginRight="10dip"
+                android:inputType="textMultiLine"
+                android:paddingLeft="20dip"
+                android:textSize="17dip"
+                android:paddingTop="10dip"
+                android:paddingBottom="10dip"
+                android:paddingRight="20dip"
+                android:textColor="@android:color/background_dark" >
+
+                <requestFocus />
+            </EditText>
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="back">返回</string>
+    <string name="back_blank">  返回</string>
+    <string name="all_board">所有版块</string>
+    <string name="send">发送</string>
+    <string name="black">黑名单</string>
+    <string name="input_username">输入用户名</string>
+    <string name="add">添加</string>
+    <string name="all">全部</string>
+    <string name="pre_board">版块收藏 </string>
+    <string name="pre_board_back">    版块收藏     </string>
+    <string name="syn">同步</string>
+    <string name="search">查找</string>
+    <string name="hot_board">各区热点</string>
+    <string name="search_article">搜索文章</string>
+    <string name="friends">我的好友</string>
+    <string name="collection">我的收藏</string>
+    <string name="hot">热点</string>
+    <string name="lily">南大小百合</string>
+    <string name="myemail">jaymee0523@gmail.com</string>
+    <string name="myinfo">08级电子科学与工程学院 Jerry Wong</string>
+    <string name="refresh">刷新</string>
+    <string name="reply_article">回复</string>
+    <string name="top">百合十大</string>
+    <string name="top_short">十大</string>
+    <string name="board">版块</string>
+    <string name="more">更多</string>
+    <string name="save">保存</string>
+    <string name="sign_hint">手机专属签名档</string>
+    <string name="quit">退出</string>
+    <string name="quit_blank">   退出</string>
+    <string name="login">登录</string>
+    <string name="login_hint">百合用户名</string>
+    <string name="password">密码</string>
+    <string name="establish">新建</string>
+    <string name="mail">站内信</string>
+    <string name="set">设置</string>
+    <string name="post">发帖</string>
+    <string name="information">资讯</string>
+    <string name="information2">资讯中心</string>
+    <string name="collect">收藏</string>
+    <string name="last_page">上一页</string>
+    <string name="next_page">下一页</string>
+    <string name="submit">提交</string>
+    <string name="title_hint">请输入标题</string>
+    <string name="switch_user">切换用户</string>
+    <string name="about">关于</string>
+    <string name="check_update">检查更新</string>
+    <string name="sign">签名档</string>
+    <string name="manage_black">管理黑名单</string>
+    <string name="login_when_start">启动时登录</string>
+    <string name="load_pic">加载照片</string>
+    <string name="save_pic">缓存图片至存储卡</string>
+    <string name="delete_pic">清空缓存图片</string>
+    <string name="delete">删除</string>
+    <string name="reply_send_mail">回复时发送站内信提醒</string>
+    <string name="app_name">Lily</string>
+    <string name="xlistview_header_hint_normal">下拉刷新</string>
+    <string name="xlistview_header_hint_ready">松开刷新数据</string>
+    <string name="xlistview_header_hint_loading">正在加载...</string>
+    <string name="xlistview_header_last_time">上次更新时间：</string>
+    <string name="xlistview_footer_hint_ready">松开载入更多</string>
+
+</resources>

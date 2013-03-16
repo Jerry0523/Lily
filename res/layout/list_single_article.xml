@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:paddingBottom="10dip"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/sa_author"
+            style="@style/SubContentText"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="10dip"
+            android:layout_marginTop="5dip"
+            android:layout_toRightOf="@+id/sa_reply"
+            android:textIsSelectable="false" />
+
+        <TextView
+            android:id="@+id/sa_reply"
+            style="@style/SubContentText"
+            android:layout_alignBaseline="@+id/sa_author"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="10dip"
+            android:textIsSelectable="false" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/sa_content"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dip"
+        android:layout_marginRight="10dip"
+        android:layout_marginTop="5dip"
+        android:textColor="@android:color/background_dark"
+        android:textColorLink="#08298A"
+        android:textIsSelectable="false"
+        android:textSize="19sp" />
+
+    <RelativeLayout
+        android:id="@+id/sa_toolbar"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingRight="15dip" >
+
+        <ImageButton
+            android:id="@+id/sa_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@null"
+            android:contentDescription="@string/establish"
+            android:src="@drawable/file_edit" />
+
+        <ImageButton
+            android:id="@+id/sa_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/sa_edit"
+            android:layout_marginRight="10dip"
+            android:background="@null"
+            android:contentDescription="@string/delete"
+            android:src="@drawable/file_delete" />
+    </RelativeLayout>
+
+</LinearLayout>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/article_body"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="50dip"
+        android:background="@drawable/title_background" >
+
+        <Button
+            android:id="@+id/bbutton"
+            style="@style/TitleLeftBackButton"
+            android:text="@string/back" />
+
+        <com.jerry.widget.MarqueeTextView
+            android:id="@+id/article_title"
+            android:layout_width="180dip"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:ellipsize="marquee"
+            android:gravity="center"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:textSize="20sp" />
+
+        <ImageButton
+            android:id="@+id/article_more"
+            style="@style/TitleRightImageButton"
+            android:contentDescription="@string/more"
+            android:src="@drawable/more_dot" />
+    </RelativeLayout>
+
+     <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+
+        <com.jerry.widget.XListView
+            android:id="@android:id/list"
+            style="@style/xlistview" />
+
+        <com.jerry.widget.PageBackController
+            android:id="@+id/page_controller"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" />
+    </RelativeLayout>
+
+</LinearLayout>
