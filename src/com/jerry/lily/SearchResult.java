@@ -39,7 +39,7 @@ public class SearchResult extends ListActivity{
 		}
 		initComponents();
 	}
-	
+
 	@Override
 	public void onBackPressed() {
 		super.onBackPressed();
@@ -64,30 +64,44 @@ public class SearchResult extends ListActivity{
 			case 12:
 				initList();
 				break;
+			case 13:
+				String title = articleList.get(msg.arg2).getTitle();
+				title = title.replace("Re: ", "");
+				Intent intent = new Intent(SearchResult.this, ArticleActivity.class);
+				intent.putExtra("board", articleList.get(msg.arg2).getBoard());
+				intent.putExtra("contentUrl", (String)msg.obj);
+				intent.putExtra("title", title);
+				startActivity(intent);
+				overridePendingTransition(R.anim.slide_right_in, R.anim.slide_left_out);
+				break;
 			}
 		}
 	};
-	
+
 	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
+	protected void onListItemClick(ListView l, View v, final int position, long id) {
 		super.onListItemClick(l, v, position, id);
-		try {
-			String url = DocParser.getAllTopicArtileUrl(articleList.get(position).getContentUrl());
-			String title = articleList.get(position).getTitle();
-			title = title.replace("Re: ", "");
-			Intent intent = new Intent(this, ArticleActivity.class);
-			intent.putExtra("board", articleList.get(position).getBoard());
-			intent.putExtra("contentUrl", url);
-			intent.putExtra("title", title);
-			startActivity(intent);
-			overridePendingTransition(R.anim.slide_right_in, R.anim.slide_left_out);
-		} catch (IOException e) {
-			Message msg = Message.obtain();
-			msg.arg1 = 10;
-			mHandler.sendMessage(msg);
-		}
+		waitingDialog.show();
+		Thread thread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				Message msg = Message.obtain();
+				try {
+					String url = DocParser.getAllTopicArtileUrl(articleList.get(position).getContentUrl());
+					msg.arg1 = 13;
+					msg.obj = url;
+					msg.arg2 = position;
+					mHandler.sendMessage(msg);
+				} catch (IOException e) {
+					msg.arg1 = 10;
+					mHandler.sendMessage(msg);
+				}
+			}
+		});
+		thread.start();
 	}
-	
+
 	private void initList() {
 		int textResourceId = DatabaseDealer.getSettings(SearchResult.this).isNight() ? R.layout.list_top10_night : R.layout.list_top10;
 		mAdapter = new SimpleAdapter(this, dataMap, textResourceId, new String[] {"title","author","board"}, new int[] {R.id.title, R.id.author, R.id.board});
@@ -128,7 +142,7 @@ public class SearchResult extends ListActivity{
 					msg.arg1 = 10;
 					mHandler.sendMessage(msg);
 				}
-				
+
 			}
 		});
 		thread.start();

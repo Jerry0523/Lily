@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@android:color/white"
+    android:background="@drawable/body_background"
     android:orientation="vertical" >
 
     <RelativeLayout
@@ -12,209 +12,134 @@
 
         <Button
             android:id="@+id/search_back"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:background="@drawable/title_button_back"
-            android:minWidth="75dip"
-            android:text="@string/back"
-            android:textColor="@android:color/background_light" />
+            style="@style/TitleLeftBackButton"
+            android:text="@string/back" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:text="@string/search_article"
-            android:textSize="20dip" />
+            android:textSize="20sp" />
 
         <Button
             android:id="@+id/search_submit"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:background="@drawable/title_button"
-            android:minWidth="75dip"
-            android:text="@string/search"
-            android:textColor="@android:color/background_light" />
+            style="@style/TitleRightTextButton"
+            android:text="@string/search" />
     </RelativeLayout>
 
-    <RelativeLayout
+    <TextView
+        style="@style/NewsPaperTitleText"
+        android:layout_marginLeft="10dip"
+        android:text="过滤条件" />
+
+    <EditText
+        android:id="@+id/search_author"
+        style="@style/RoundListBody"
+        android:layout_marginLeft="10dip"
+        android:background="@drawable/roundlist_top"
+        android:hint="文章作者"
+        android:inputType="text"
+        android:paddingBottom="5dip" />
+
+    <EditText
+        android:id="@+id/search_title"
+        style="@style/RoundListBody"
+        android:layout_marginLeft="10dip"
+        android:background="@drawable/roundlist_center"
+        android:hint="标题含有"
+        android:inputType="text" />
+
+    <EditText
+        android:id="@+id/search_title2"
+        style="@style/RoundListBody"
+        android:layout_marginLeft="10dip"
+        android:background="@drawable/roundlist_bottom"
+        android:hint="标题不含"
+        android:inputType="text"
+        android:paddingTop="5dip" />
+
+    <TextView
+        style="@style/NewsPaperTitleText"
+        android:layout_marginLeft="10dip"
+        android:text="发帖时间" />
+
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dip" >
-
-        <TextView
-            android:id="@+id/search_label1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/search_author"
-            android:text="文章作者"
-            android:textColor="@android:color/background_dark"
-            android:textSize="19dip" />
-
-        <EditText
-            android:id="@+id/search_author"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dip"
-            android:layout_toRightOf="@+id/search_label1"
-            android:background="@drawable/edit_text"
-            android:inputType="text" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dip"
-        android:layout_marginRight="20dip" >
-
-        <TextView
-            android:id="@+id/search_label2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/search_title"
-            android:text="标题含有"
-            android:textColor="@android:color/background_dark"
-            android:textSize="19dip" />
-
-        <EditText
-            android:id="@+id/search_title"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dip"
-            android:layout_toRightOf="@+id/search_label2"
-            android:background="@drawable/edit_text"
-            android:inputType="text" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dip"
-        android:layout_marginRight="20dip"
-        android:layout_marginTop="20dip" >
-
-        <TextView
-            android:id="@+id/search_label3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/search_title2"
-            android:text="标题不含"
-            android:textColor="@android:color/background_dark"
-            android:textSize="19dip" />
-
-        <EditText
-            android:id="@+id/search_title2"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dip"
-            android:layout_toRightOf="@+id/search_label3"
-            android:background="@drawable/edit_text"
-            android:inputType="text" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dip"
-        android:layout_marginRight="20dip"
-        android:layout_marginTop="20dip" >
-
-        <TextView
-            android:id="@+id/search_label4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="发帖时间"
-            android:textColor="@android:color/background_dark"
-            android:textSize="19dip" />
+        android:orientation="horizontal" >
 
         <ToggleButton
             android:id="@+id/search_day"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/search_label4"
             android:layout_marginLeft="10dip"
-            android:layout_toRightOf="@+id/search_label4"
             android:background="@drawable/radio_button"
             android:textOff=""
             android:textOn="" />
 
         <TextView
-            android:id="@+id/search_label5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="2dip"
-            android:layout_toRightOf="@+id/search_day"
-            android:text="一天"
-            android:textColor="@android:color/background_dark"
-            android:textSize="15dip" />
+            style="@style/NewsPaperContentText"
+            android:text="一天" >
+        </TextView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
 
         <ToggleButton
             android:id="@+id/search_week"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/search_label4"
-            android:layout_marginLeft="25dip"
-            android:layout_toRightOf="@+id/search_label5"
-            android:background="@drawable/radio_button"
-            android:textOff=""
-            android:textOn="" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="2dip"
-            android:layout_toRightOf="@+id/search_week"
-            android:text="一周"
-            android:textColor="@android:color/background_dark"
-            android:textSize="15dip" />
-
-        <ToggleButton
-            android:id="@+id/search_month"
-            android:checked="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/search_label5"
-            android:layout_toRightOf="@+id/search_label4"
-            android:layout_marginTop="10dip"
             android:layout_marginLeft="10dip"
             android:background="@drawable/radio_button"
             android:textOff=""
             android:textOn="" />
 
         <TextView
+            style="@style/NewsPaperContentText"
+            android:text="一周" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <ToggleButton
+            android:id="@+id/search_month"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/search_month"
-            android:layout_marginLeft="2dip"
-            android:layout_toRightOf="@+id/search_month"
-            android:text="一月"
-            android:id="@+id/search_label6"
-            android:textColor="@android:color/background_dark"
-            android:textSize="15dip" />
-        
-         <ToggleButton
+            android:layout_marginLeft="10dip"
+            android:background="@drawable/radio_button"
+            android:checked="true"
+            android:textOff=""
+            android:textOn="" />
+
+        <TextView
+            style="@style/NewsPaperContentText"
+            android:text="一月" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <ToggleButton
             android:id="@+id/search_year"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/search_month"
-            android:layout_marginLeft="25dip"
-            android:layout_toRightOf="@+id/search_label6"
+            android:layout_marginLeft="10dip"
             android:background="@drawable/radio_button"
             android:textOff=""
             android:textOn="" />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="2dip"
-            android:layout_toRightOf="@+id/search_year"
-            android:layout_alignBaseline="@+id/search_month"
-            android:text="一年"
-            android:textColor="@android:color/background_dark"
-            android:textSize="15dip" />
-    </RelativeLayout>
+            style="@style/NewsPaperContentText"
+            android:text="一年" />
+    </LinearLayout>
 
 </LinearLayout>

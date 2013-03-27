@@ -17,10 +17,10 @@ import com.jerry.utils.DocParser;
 
 public class NewMail extends Activity{
 
-	private ImageButton reply;
+	private Button reply;
 	private Button quit;
-	private Button photo;
-	private Button pic;
+	private ImageButton photo;
+	private ImageButton pic;
 	private EditText title;
 	private EditText content;
 
@@ -46,13 +46,13 @@ public class NewMail extends Activity{
 	};
 
 	private void initComponents() {
-		reply = (ImageButton)findViewById(R.id.reply_submit);
+		reply = (Button)findViewById(R.id.reply_submit);
 		quit = (Button)findViewById(R.id.reply_quit);
 		content = (EditText)findViewById(R.id.reply_edit);
 		title = (EditText) findViewById(R.id.reply_title);
 
-		photo = (Button)findViewById(R.id.reply_photo);
-		pic = (Button)findViewById(R.id.reply_pic);
+		photo = (ImageButton)findViewById(R.id.reply_photo);
+		pic = (ImageButton)findViewById(R.id.reply_pic);
 		photo.setVisibility(View.GONE);
 		pic.setVisibility(View.GONE);
 

@@ -3,23 +3,20 @@ package com.jerry.lily;
 import java.util.List;
 
 import android.app.ListActivity;
-import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.widget.ImageButton;
 
 import com.jerry.utils.DatabaseDealer;
+import com.jerry.widget.IOSAlertDialog;
+import com.jerry.widget.SimpleEditAdapter;
 
 public class Block extends ListActivity implements OnClickListener{
 	private EditText edit;
-
 	private List<String> blockList;
 
 	protected void onCreate(Bundle savedInstanceState) {
@@ -28,18 +25,25 @@ public class Block extends ListActivity implements OnClickListener{
 		initComponents();
 		initList();
 	}
-	
+
 	private void initList() {
 		blockList = DatabaseDealer.getBlockList(Block.this);
-		MyArrayAdapter adatper = new MyArrayAdapter(Block.this, R.layout.list_block, blockList);
-		setListAdapter(adatper);
+		SimpleEditAdapter adapter = new SimpleEditAdapter(this, R.layout.list_edit_item, R.id.list_textview, R.id.list_select, R.id.list_delete, blockList) {
+			@Override
+			protected void onDelete(final int position) {
+				DatabaseDealer.deleteFromBlock(Block.this, getItem(position));
+				onResume();
+			}
+		};
+		setListAdapter(adapter);
 	}
 
 	private void initComponents() {
 		edit = (EditText)findViewById(R.id.block_edit);
-		
+
 		((Button)findViewById(R.id.block_back)).setOnClickListener(this);
 		((Button)findViewById(R.id.block_submit)).setOnClickListener(this);
+		((ImageButton)findViewById(R.id.block_modify)).setOnClickListener(this);
 	}
 
 	@Override
@@ -48,33 +52,20 @@ public class Block extends ListActivity implements OnClickListener{
 		overridePendingTransition(R.anim.slide_left_in,R.anim.slide_right_out); 
 	}
 
-	private class MyArrayAdapter extends ArrayAdapter<String> {
-		int resourceId;
-		public MyArrayAdapter(Context context, int textViewResourceId, List<String> objects) {
-			super(context, textViewResourceId, objects);
-			resourceId = textViewResourceId;
-		}
+	@Override
+	public SimpleEditAdapter getListAdapter() {
+		return (SimpleEditAdapter) super.getListAdapter();
+	}
 
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			final String blockName = blockList.get(position);
-			LinearLayout userListItem = new LinearLayout(getContext());  
-			String inflater = Context.LAYOUT_INFLATER_SERVICE;   
-			LayoutInflater vi = (LayoutInflater)getContext().getSystemService(inflater);   
-			vi.inflate(resourceId, userListItem, true);  
-			TextView tvName = (TextView)userListItem.findViewById(R.id.lib_name);  
-			Button tvDelete = (Button)userListItem.findViewById(R.id.lib_delete);
-			tvName.setText(blockName);
-			tvDelete.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					DatabaseDealer.deleteFromBlock(Block.this, blockName);
-					initList();
-				}
-			});
-			return userListItem;  
+	@Override
+	protected void onResume() {
+		super.onResume();
+		List<String> newList = DatabaseDealer.getBlockList(Block.this);
+		blockList.clear();
+		for(String s : newList) {
+			blockList.add(s);
 		}
-
+		getListAdapter().notifyDataSetChanged();
 	}
 
 	@Override
@@ -86,9 +77,12 @@ public class Block extends ListActivity implements OnClickListener{
 
 		case R.id.block_submit:
 			DatabaseDealer.add2Block(Block.this, edit.getText().toString());
-			initList();
+			onResume();
+			break;
+		case R.id.block_modify:
+			getListAdapter().changeEditingState();
 			break;
 		}
-		
+
 	}
 }

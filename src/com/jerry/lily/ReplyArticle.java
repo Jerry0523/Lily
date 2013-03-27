@@ -2,8 +2,6 @@ package com.jerry.lily;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import android.app.Activity;
@@ -51,7 +49,6 @@ public class ReplyArticle extends Activity implements OnClickListener{
 	private int[] emotionId = getEmotionIdArray();
 	private String[] emotionString = getEmotionStringArray();
 
-	private List<String> picPath = new ArrayList<String>();
 	private File tmpPhoto;
 
 	private IOSWaitingDialog waitingDialog;
@@ -107,7 +104,21 @@ public class ReplyArticle extends Activity implements OnClickListener{
 					};
 				}
 				new IOSAlertDialog.Builder(ReplyArticle.this).setTitle("警告").setMessage("发送失败，是否重试?").setPositiveButton("好", positiveLis).setNegativeButton("取消", negativeLis).create().show();
+				break;
+			case 2:
+				String picUrl = (String) msg.obj;
+				if(content.length() == 0) {
+					content.append(picUrl + '\n');
+				} else {
+					content.append('\n' + picUrl + '\n');
+				}
+				
+				break;
+			case 3:
+				new IOSAlertDialog.Builder(ReplyArticle.this).setTitle("警告").setMessage("图片上传失败").setNegativeButtonText("好").create().show();
+				break;
 			}
+
 		}
 	};
 
@@ -128,13 +139,13 @@ public class ReplyArticle extends Activity implements OnClickListener{
 			actualimagecursor.moveToFirst();  
 			String imgPath= actualimagecursor.getString(actual_image_column_index); 
 			actualimagecursor.close();
-			picPath.add(imgPath);
+			uploadPicture(imgPath);
 			break;
 		case Constants.CAMERA:
 			if(tmpPhoto == null || !tmpPhoto.exists()) {
 				return;
 			}
-			picPath.add(tmpPhoto.getPath());
+			uploadPicture(tmpPhoto.getPath());
 			break;
 		}
 	}
@@ -225,6 +236,28 @@ public class ReplyArticle extends Activity implements OnClickListener{
 
 	}
 
+	private void uploadPicture(final String picPath) {
+		if(waitingDialog == null) {
+			waitingDialog = IOSWaitingDialog.createDialog(this);
+		}
+		waitingDialog.show();
+		Thread uploadPic = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					Message msg  = Message.obtain();
+					msg.what = 2;
+					msg.obj = DocParser.upLoadPic2Server(picPath, getIntent().getStringExtra("board"), ReplyArticle.this);
+					mHandler.sendMessage(msg);
+				} catch (IOException e) {
+					mHandler.sendEmptyMessage(3);
+				}			
+			}
+		});
+
+		uploadPic.start();
+	}
 
 	private void sendArticle() {
 		if(waitingDialog == null) {
@@ -235,8 +268,7 @@ public class ReplyArticle extends Activity implements OnClickListener{
 			@Override
 			public void run() {
 				try {
-					String picUrl = DocParser.upLoadPic2Server(picPath, getIntent().getStringExtra("board"), ReplyArticle.this);
-					boolean success = isTitleVisiable ? postNewArticle(picUrl) : sendReply(picUrl);
+					boolean success = isTitleVisiable ? postNewArticle() : sendReply();
 					if(!isTitleVisiable && DatabaseDealer.getSettings(ReplyArticle.this).isSendMail()) {
 						String authorName = getIntent().getStringExtra("authorName");
 						String boardName = getIntent().getStringExtra("board");
@@ -254,13 +286,13 @@ public class ReplyArticle extends Activity implements OnClickListener{
 		});
 		sendReply.start();
 	}
-	
-	private boolean postNewArticle(String picUrl) throws IOException {
+
+	private boolean postNewArticle() throws IOException {
 		String boardName = getIntent().getStringExtra("board");
-		return DocParser.sendReply(boardName, title.getText().toString(), "0", "0", content.getText().toString(), null,picUrl, ReplyArticle.this);
+		return DocParser.sendReply(boardName, title.getText().toString(), "0", "0", content.getText().toString(), null, ReplyArticle.this);
 	}
 
-	private boolean sendReply(String picUrl) throws IOException {
+	private boolean sendReply() throws IOException {
 
 		String replyUrl = getIntent().getStringExtra("replyUrl");
 		String authorName = getIntent().getStringExtra("authorName");
@@ -274,7 +306,7 @@ public class ReplyArticle extends Activity implements OnClickListener{
 			return false;
 		}
 		title = title.contains("○") ? title.replace("○", "Re:") : ("Re: " + title);
-		return DocParser.sendReply(boardName, title, pidString, reIdString, content.getText().toString(), authorName, picUrl, ReplyArticle.this);
+		return DocParser.sendReply(boardName, title, pidString, reIdString, content.getText().toString(), authorName, ReplyArticle.this);
 	}
 
 

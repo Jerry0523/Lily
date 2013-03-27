@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jerry.lily"
-    android:versionCode="7"
-    android:versionName="alpha" >
+    android:versionCode="8"
+    android:versionName="beta" >
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -85,12 +85,6 @@
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
-            android:name=".Top"
-            android:theme="@android:style/Theme.NoTitleBar" />
-        <activity
-            android:name=".Board"
-            android:theme="@android:style/Theme.NoTitleBar" />
-        <activity
             android:name=".Mail"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
@@ -98,12 +92,6 @@
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
             android:name=".Set"
-            android:theme="@android:style/Theme.NoTitleBar" />
-        <activity
-            android:name=".Center"
-            android:theme="@android:style/Theme.NoTitleBar" />
-        <activity
-            android:name=".Hot"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
             android:name=".PicView"

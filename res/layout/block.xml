@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@android:color/white"
+    android:background="@drawable/body_background"
     android:orientation="vertical"
     android:scrollbars="vertical" >
 
@@ -13,27 +13,27 @@
 
         <Button
             android:id="@+id/block_back"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:background="@drawable/title_button_back"
-            android:minWidth="75dip"
-            android:text="@string/back"
-            android:textColor="@android:color/background_light" />
+            style="@style/TitleLeftBackButton"
+            android:text="@string/back" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:text="@string/black"
-            android:textSize="20dip" />
+            android:textSize="20sp" />
+
+        <ImageButton
+            android:id="@+id/block_modify"
+            style="@style/TitleRightImageButton"
+            android:contentDescription="@string/establish"
+            android:src="@drawable/new_element" />
     </RelativeLayout>
 
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/alert_background"
+        android:layout_height="65dip"
+        android:background="@drawable/list_head_background"
         android:orientation="horizontal"
         android:padding="10dip" >
 

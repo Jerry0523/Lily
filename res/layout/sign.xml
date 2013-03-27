@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@android:color/white"
+    android:background="@drawable/body_background"
     android:orientation="vertical" >
 
     <RelativeLayout
@@ -12,25 +12,21 @@
 
         <Button
             android:id="@+id/sign_exit"
+            style="@style/TitleLeftBackButton"
+            android:text="@string/back" />
+
+        <TextView
+            android:id="@+id/sign_title"
             android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:background="@drawable/title_button_back"
-            android:minWidth="75dip"
-            android:text="@string/back"
-            android:textColor="@android:color/background_light" />
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/sign"
+            android:textSize="20sp" />
 
         <Button
             android:id="@+id/sign_submit"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:background="@drawable/title_button"
-            android:minWidth="75dip"
-            android:text="@string/save"
-            android:textColor="@android:color/background_light" />
+            style="@style/TitleRightTextButton"
+            android:text="@string/save" />
     </RelativeLayout>
 
     <RelativeLayout

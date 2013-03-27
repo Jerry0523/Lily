@@ -32,10 +32,16 @@
         android:id="@+id/reply_title"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/content_title"
+        android:background="@null"
         android:ems="10"
         android:hint="@string/title_hint"
-        android:textColorHint="#A9F5A9" />
+        android:padding="10dip"
+        android:textColorHint="#939ea5" />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="@android:color/background_dark" />
 
     <EditText
         android:id="@+id/reply_edit"
@@ -46,6 +52,7 @@
         android:gravity="top"
         android:inputType="textMultiLine"
         android:padding="10dip"
+        android:textSize="15sp"
         android:textColor="@android:color/background_dark" />
 
     <TableRow

@@ -179,7 +179,6 @@ public class ArticleActivity extends ListActivity implements IXListViewListener,
 		backButton.setOnClickListener(this);
 		more.setOnClickListener(this);
 		getListView().setXListViewListener(ArticleActivity.this);
-
 		userName = DatabaseDealer.query(this).getString("username");
 	}
 

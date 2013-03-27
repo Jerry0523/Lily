@@ -12,14 +12,8 @@
 
         <Button
             android:id="@+id/mreply_back"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:background="@drawable/title_button_back"
-            android:minWidth="75dip"
-            android:text="@string/back"
-            android:textColor="@android:color/background_light" />
+            style="@style/TitleLeftBackButton"
+            android:text="@string/back" />
 
         <com.jerry.widget.MarqueeTextView
             android:id="@+id/mreply_title"
@@ -30,29 +24,23 @@
             android:gravity="center"
             android:marqueeRepeatLimit="marquee_forever"
             android:singleLine="true"
-            android:textSize="20dip" />
+            android:textSize="20sp" />
 
         <Button
             android:id="@+id/mreply_send"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:background="@drawable/title_button"
-            android:minWidth="75dip"
-            android:text="@string/send"
-            android:textColor="@android:color/background_light" />
+            style="@style/TitleRightTextButton"
+            android:text="@string/send" />
     </RelativeLayout>
 
     <ScrollView
         android:layout_width="fill_parent"
-        android:scrollbars="vertical"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical" >
 
         <LinearLayout
             android:layout_width="fill_parent"
-            android:orientation="vertical"
-            android:layout_height="fill_parent" >
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
 
             <TextView
                 android:id="@+id/mreply_content"
@@ -61,30 +49,31 @@
                 android:layout_marginLeft="10dip"
                 android:layout_marginRight="10dip"
                 android:layout_marginTop="15dip"
-                android:paddingLeft="25dip"
-                android:paddingTop="10dip"
-                android:textSize="17dip"
-                android:paddingRight="10dip"
-                android:paddingBottom="20dip"
                 android:background="@drawable/chat_background"
-                android:textColor="@android:color/background_dark"/>
+                android:paddingBottom="20dip"
+                android:paddingLeft="25dip"
+                android:paddingRight="10dip"
+                android:paddingTop="10dip"
+                android:textColor="@android:color/background_dark"
+                android:textIsSelectable="false"
+                android:textSize="17sp" />
 
             <EditText
                 android:id="@+id/mreply_reply"
                 android:layout_width="fill_parent"
                 android:layout_height="100dip"
+                android:layout_marginLeft="15dip"
+                android:layout_marginRight="10dip"
+                android:layout_marginTop="10dip"
                 android:background="@drawable/chat_background2"
                 android:gravity="top"
-                android:layout_marginLeft="15dip"
-                android:layout_marginTop="10dip"
-                android:layout_marginRight="10dip"
                 android:inputType="textMultiLine"
-                android:paddingLeft="20dip"
-                android:textSize="17dip"
-                android:paddingTop="10dip"
                 android:paddingBottom="10dip"
+                android:paddingLeft="20dip"
                 android:paddingRight="20dip"
-                android:textColor="@android:color/background_dark" >
+                android:paddingTop="10dip"
+                android:textColor="@android:color/background_dark"
+                android:textSize="17sp" >
 
                 <requestFocus />
             </EditText>

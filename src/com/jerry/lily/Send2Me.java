@@ -11,14 +11,13 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jerry.utils.DocParser;
 import com.jerry.widget.IOSWaitingDialog;
 
-public class Send2Me extends Activity{
-	private Button submit;
-	private Button quit;
+public class Send2Me extends Activity implements OnClickListener{
 	private EditText edit;
 	private IOSWaitingDialog waitingDialog;
 	@Override
@@ -58,45 +57,47 @@ public class Send2Me extends Activity{
 	private void initComponents() {
 		((RelativeLayout)findViewById(R.id.sign_ra1)).setVisibility(View.GONE);
 		((RelativeLayout)findViewById(R.id.sign_ra2)).setVisibility(View.GONE);
-
-		submit = (Button)findViewById(R.id.sign_submit);
-		quit = (Button)findViewById(R.id.sign_exit);
-		edit = (EditText)findViewById(R.id.sign_sign);
-
+		((Button)findViewById(R.id.sign_exit)).setOnClickListener(this);
+		((TextView)findViewById(R.id.sign_title)).setText("发送反馈");
+		
+		Button submit = (Button)findViewById(R.id.sign_submit);
 		submit.setText("提交");
+		submit.setOnClickListener(this);
+		
+		edit = (EditText)findViewById(R.id.sign_sign);
 		edit.setHint("输入反馈内容");
 
-		submit.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if(waitingDialog == null) {
-					waitingDialog = IOSWaitingDialog.createDialog(Send2Me.this);
-				}
-				waitingDialog.show();
-				Thread thread = new Thread(new Runnable() {
-					@Override
-					public void run() {
-						Message msg = Message.obtain();
-						try {
-							DocParser.sendMail("mysterious", edit.getText().toString(), getApplicationContext());
-							msg.arg1 = 11;
-							mHandler.sendMessage(msg);
-						} catch (IOException e) {
-							msg.arg1 = 10;
-							mHandler.sendMessage(msg);
-						}
+	}
 
+	@Override
+	public void onClick(View v) {
+		switch(v.getId()) {
+		case R.id.sign_submit:
+			if(waitingDialog == null) {
+				waitingDialog = IOSWaitingDialog.createDialog(Send2Me.this);
+			}
+			waitingDialog.show();
+			Thread thread = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					Message msg = Message.obtain();
+					try {
+						DocParser.sendMail("mysterious", edit.getText().toString(), getApplicationContext());
+						msg.arg1 = 11;
+						mHandler.sendMessage(msg);
+					} catch (IOException e) {
+						msg.arg1 = 10;
+						mHandler.sendMessage(msg);
 					}
-				});
-				thread.start();
-			}
-		});
 
-		quit.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onBackPressed();
-			}
-		});
+				}
+			});
+			thread.start();
+			break;
+		case R.id.sign_exit:
+			onBackPressed();
+			break;
+		}
+
 	}
 }

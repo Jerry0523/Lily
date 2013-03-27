@@ -17,6 +17,8 @@ import android.os.Message;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -26,20 +28,16 @@ import android.widget.Toast;
 import com.jerry.utils.AnimCommon;
 import com.jerry.utils.DatabaseDealer;
 import com.jerry.utils.DocParser;
-import com.jerry.utils.ShutDown;
 import com.jerry.widget.IOSWaitingDialog;
 import com.jerry.widget.XListView;
 import com.jerry.widget.XListView.IXListViewListener;
 
-public class Mail extends ListActivity implements IXListViewListener{
+public class Mail extends ListActivity implements IXListViewListener, OnClickListener{
 
 	private List<com.jerry.model.Mail> mailList;
 	private IOSWaitingDialog waitingDialog;
 	private List<Map<String, Object>> contentList;
 
-	private XListView mListView;
-	private MySimpleAdapter mAdapter;
-	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -82,20 +80,19 @@ public class Mail extends ListActivity implements IXListViewListener{
 				Toast.makeText(getApplicationContext(), "Õ¯¬Á“Ï≥££¨«Î…‘∫Û÷ÿ ‘", Toast.LENGTH_SHORT).show();
 				break;
 			case 12:
-				if(mAdapter == null) {
+				if(getListAdapter() == null) {
 					int textResourceId = DatabaseDealer.getSettings(Mail.this).isNight() ? R.layout.list_mail_night : R.layout.list_mail;
-					mAdapter = new MySimpleAdapter(Mail.this, contentList, textResourceId, new String[] {"title","author","time"}, new int[] {R.id.lm_title, R.id.lm_author, R.id.lm_time});
-					setListAdapter(mAdapter);
+					setListAdapter(new MySimpleAdapter(Mail.this, contentList, textResourceId, new String[] {"title","author","time"}, new int[] {R.id.lm_title, R.id.lm_author, R.id.lm_time}));
 				} else {
-					mAdapter.notifyDataSetChanged();
+					((BaseAdapter) getListAdapter()).notifyDataSetChanged();
 				}
-				
+
 				if (waitingDialog != null) {
 					waitingDialog.dismiss();
 				}
 				break;
 			case 13:
-				mAdapter.notifyDataSetChanged();
+				((BaseAdapter) getListAdapter()).notifyDataSetChanged();
 				onLoad();
 				break;
 			case 14:
@@ -105,23 +102,21 @@ public class Mail extends ListActivity implements IXListViewListener{
 			}
 		}
 	};
-	
+
+	@Override
+	public XListView getListView() {
+		return (XListView) super.getListView();
+	};
+
 	private void onLoad() {
-		mListView.stopRefresh();
-		mListView.setRefreshTime(DocParser.getLastUpdateTime());
+		getListView().stopRefresh();
+		getListView().setRefreshTime(DocParser.getLastUpdateTime());
 	}
 
 	private void initComponents() {
-		mListView = (XListView) getListView();
-		mListView.setXListViewListener(this);
-		ImageButton add = (ImageButton)findViewById(R.id.mail_add);
-		add.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent intent = new Intent(Mail.this, NewMail.class);
-				startActivity(intent);
-			}
-		});
+		getListView().setXListViewListener(this);
+		((ImageButton)findViewById(R.id.mail_add)).setOnClickListener(this);
+		((Button)findViewById(R.id.mail_quit)).setOnClickListener(this);
 	}
 
 	private void initList() {
@@ -163,7 +158,8 @@ public class Mail extends ListActivity implements IXListViewListener{
 
 	@Override
 	public void onBackPressed() {
-		ShutDown.shutDownActivity(this);
+		super.onBackPressed();
+		overridePendingTransition(R.anim.slide_left_in,R.anim.slide_right_out); 
 	}
 
 	class MySimpleAdapter extends SimpleAdapter {
@@ -213,5 +209,20 @@ public class Mail extends ListActivity implements IXListViewListener{
 	@Override
 	public void onLoadMore() {
 		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.mail_add:
+			Intent intent = new Intent(Mail.this, NewMail.class);
+			startActivity(intent);
+			break;
+
+		case R.id.mail_quit:
+			onBackPressed();
+			break;
+		}
+
 	}
 }

@@ -2,103 +2,76 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#d8d8d8"
+    android:background="@drawable/body_background"
     android:orientation="vertical" >
 
+    <TextView
+        style="@style/NewsPaperTitleText"
+        android:layout_marginLeft="10dip"
+        android:text="站内功能" />
+
     <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="50dip"
-        android:background="@drawable/title_background" >
+        android:id="@+id/center_mail"
+        style="@style/RoundListBody"
+        android:layout_marginLeft="10dip"
+        android:background="@drawable/roundlist_top" >
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="@string/information2"
-            android:textSize="20dip" />
+            style="@style/NewsPaperContentText"
+            android:text="@string/mail" />
+
+        <TextView
+            style="@style/NewsPaperRightItem"
+            android:background="@drawable/arrow" />
     </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/center_search"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-         android:layout_marginLeft="10dip"
-        android:layout_marginRight="10dip"
-        android:layout_marginTop="10dip"
-        android:background="@drawable/round_background" >
+        style="@style/RoundListBody"
+        android:layout_marginLeft="10dip"
+        android:background="@drawable/roundlist_bottom" >
 
         <TextView
-            android:layout_marginTop="5dip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="5dip"
-            android:text="@string/search_article"
-            android:textColor="@android:color/background_dark"
-            android:textSize="16dip" />
+            style="@style/NewsPaperContentText"
+            android:text="@string/search_article" />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
+            style="@style/NewsPaperRightItem"
             android:background="@drawable/arrow" />
     </RelativeLayout>
-    
+
+    <TextView
+        style="@style/NewsPaperTitleText"
+        android:layout_marginLeft="10dip"
+        android:text="本地功能" />
+
     <RelativeLayout
         android:id="@+id/center_friends"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        style="@style/RoundListBody"
         android:layout_marginLeft="10dip"
-        android:layout_marginRight="10dip"
-        android:layout_marginTop="10dip"
-        android:background="@drawable/round_background" >
+        android:background="@drawable/roundlist_top" >
 
         <TextView
-            android:layout_marginTop="5dip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="5dip"
-            android:text="@string/friends"
-            android:textColor="@android:color/background_dark"
-            android:textSize="16dip" />
+            style="@style/NewsPaperContentText"
+            android:text="@string/friends" />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
+            style="@style/NewsPaperRightItem"
             android:background="@drawable/arrow" />
     </RelativeLayout>
-    
+
     <RelativeLayout
         android:id="@+id/center_collection"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        style="@style/RoundListBody"
         android:layout_marginLeft="10dip"
-        android:layout_marginRight="10dip"
-        android:layout_marginTop="10dip"
-        android:background="@drawable/round_background" >
+        android:background="@drawable/roundlist_bottom" >
 
         <TextView
-            android:layout_marginTop="5dip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="5dip"
-            android:text="@string/collection"
-            android:textColor="@android:color/background_dark"
-            android:textSize="16dip" />
+            style="@style/NewsPaperContentText"
+            android:text="@string/collection" />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
+            style="@style/NewsPaperRightItem"
             android:background="@drawable/arrow" />
     </RelativeLayout>
 

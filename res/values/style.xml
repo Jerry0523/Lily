@@ -13,6 +13,41 @@
         <item name="android:minWidth">75dip</item>
     </style>
 
+    <style name="NewsPaperTitleText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">#6c6969</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:layout_marginLeft">5dip</item>
+        <item name="android:layout_marginTop">10dip</item>
+        <item name="android:layout_marginBottom">10dip</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="NewsPaperContentText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:textColor">@android:color/background_dark</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="NewsPaperRightItem">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_alignParentRight">true</item>
+    </style>
+
+    <style name="RoundListBody">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginRight">10dip</item>
+        <item name="android:paddingLeft">10dip</item>
+        <item name="android:paddingRight">10dip</item>
+        <item name="android:minHeight">45dip</item>
+    </style>
+
     <style name="SubContentText">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -24,7 +59,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@android:color/background_dark</item>
-        <item name="android:textSize">19sp</item>
+        <item name="android:textSize">17sp</item>
     </style>
 
     <style name="TextButton">
@@ -106,8 +141,8 @@
         <item name="android:dividerHeight">1dip</item>
         <item name="android:scrollbars">vertical</item>
     </style>
-    
-        <style name="xlistview">
+
+    <style name="xlistview">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">fill_parent</item>
         <item name="android:listSelector">@drawable/list_selector</item>

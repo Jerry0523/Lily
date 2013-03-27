@@ -107,6 +107,8 @@ public class Login extends Activity implements OnClickListener{
 		banned.add("Zeratul");
 		banned.add("superjyq");
 		banned.add("nomorestars");
+		banned.add("freeme");
+		banned.add("nuanbing");
 		return banned;
 	}
 

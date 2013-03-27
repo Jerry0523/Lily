@@ -94,8 +94,8 @@ public class Welcome extends Activity{
 			protected Object[] doInBackground(Object... params) {
 				try {
 					Bundle userInfo = DatabaseDealer.query(Welcome.this);
-					List<Article> topList = DocParser.getArticleTitleList("http://bbs.nju.edu.cn/bbstop10", DatabaseDealer.getBlockList(Welcome.this));
-					List<Article> hotList = DocParser.getHotArticleTitleList("http://bbs.nju.edu.cn/bbstopall", null);
+					List<Article> topList = DocParser.getTopArticleTitleList(Welcome.this);
+					List<Article> hotList = DocParser.getHotArticleTitleList();
 					boolean newMail = false;
 					if(DatabaseDealer.getSettings(Welcome.this).isLogin()) {
 						Intent intent = new Intent(getApplicationContext(), RefreshService.class);

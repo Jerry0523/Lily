@@ -2,6 +2,7 @@ package com.jerry.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -44,11 +45,11 @@ import org.jsoup.select.Elements;
 import android.accounts.AccountsException;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
+import com.jerry.lily.Welcome;
 import com.jerry.model.Article;
 import com.jerry.model.LoginInfo;
 import com.jerry.model.Mail;
@@ -132,24 +133,6 @@ public class DocParser {
 		httpResponse = new DefaultHttpClient().execute(httpRequest);
 		if (httpResponse.getStatusLine().getStatusCode() == 200) {
 
-		}
-	}
-
-	public static boolean isNewVersionAvailable(Context context) throws IOException, NameNotFoundException{
-		String doc = Jsoup.connect("http://bbs.nju.edu.cn/blogcon?userid=WStaotao&file=1346326084").get().toString();
-		doc = doc.substring(doc.indexOf("version:["));
-		doc = doc.substring(0,doc.indexOf("]"));
-		doc = doc.substring(doc.indexOf("[") + 1);
-		PackageManager packageManager = context.getPackageManager();
-		PackageInfo packInfo;
-		packInfo = packageManager.getPackageInfo(context.getPackageName(),0);
-		String version = packInfo.versionName;
-		double d1 = Double.valueOf(doc);
-		double d2 = Double.valueOf(version);
-		if( d1 > d2 ) {
-			return true;
-		} else {
-			return false;
 		}
 	}
 
@@ -259,9 +242,10 @@ public class DocParser {
 	/*
 	 * 返回一个页面所有帖子的总体List，比如十大帖子的List
 	 */
-	public static final List<Article> getArticleTitleList(String url, List<String> blockList) throws IOException {
+	public static final List<Article> getTopArticleTitleList(Context context) throws IOException {
+		List<String> blockList = DatabaseDealer.getBlockList(context);
 		List<Article> list = new ArrayList<Article>(); 
-		Document doc = Jsoup.connect(url).timeout(5000).get();
+		Document doc = Jsoup.connect("http://bbs.nju.edu.cn/bbstop10").timeout(5000).get();
 		Elements blocks = doc.select("tr");
 		for (Element block : blocks) {
 			Elements links = block.select("a[href]");
@@ -306,9 +290,9 @@ public class DocParser {
 			if(author != null) {
 				Element time = author.nextElementSibling();
 				SimpleDateFormat dateFormat =  new SimpleDateFormat("MMM dd HH:mm yyyy",Locale.ENGLISH);
-					Calendar now = Calendar.getInstance();
-					Date value = dateFormat.parse(time.text() + " " + String.valueOf(now.get(Calendar.YEAR)));
-					article.setTime(value.getTime());
+				Calendar now = Calendar.getInstance();
+				Date value = dateFormat.parse(time.text() + " " + String.valueOf(now.get(Calendar.YEAR)));
+				article.setTime(value.getTime());
 			}
 
 			Elements fonts = block.getElementsByTag("font");
@@ -328,7 +312,7 @@ public class DocParser {
 		return list;
 	}
 
-	public static boolean sendReply(String boardName,String title, String pidString,String reIdString,String replyContent, String authorName,String picPath, Context context) throws IOException {
+	public static boolean sendReply(String boardName,String title, String pidString,String reIdString,String replyContent, String authorName, Context context) throws IOException {
 		LoginInfo loginInfo = LoginInfo.getInstance(context);
 		String newurlString = "http://bbs.nju.edu.cn/" + loginInfo.getLoginCode() + "/bbssnd?board=" + boardName;
 		HttpPost httpRequest = new HttpPost(newurlString);
@@ -338,24 +322,50 @@ public class DocParser {
 		postData.add(new BasicNameValuePair("reid", reIdString));
 		postData.add(new BasicNameValuePair("signature", "1"));
 		postData.add(new BasicNameValuePair("autocr", "on"));
-		postData.add(new BasicNameValuePair("text", DocParser.formatString(replyContent, authorName, picPath, context)));
+		postData.add(new BasicNameValuePair("text", DocParser.formatString(replyContent, authorName, context)));
 		httpRequest.addHeader("Cookie", loginInfo.getLoginCookie());
 		httpRequest.setEntity(new UrlEncodedFormEntity(postData, "GB2312"));
 		HttpResponse httpResponse = new DefaultHttpClient().execute(httpRequest);
 		if (httpResponse.getStatusLine().getStatusCode() == 200) {
 			return true;
-		} else {
-			LoginInfo.resetLoginInfo(context);
-			return sendReply(boardName, title, pidString, reIdString, replyContent, authorName, picPath, context);
 		}
+
+		return false;
 	}
 
-	public static final String upLoadPic2Server(List<String> picPath, String board, Context context) throws IOException {
-		if (picPath == null || picPath.size() == 0) {
+	private static String compressBitmapByPath(String pathName) throws IOException {
+		BitmapFactory.Options options = new BitmapFactory.Options();  
+		options.inJustDecodeBounds = true;
+		BitmapFactory.decodeFile(pathName, options);
+		Bitmap bitmap = null;
+		int i = 0;
+		while (true) {  
+			if ((options.outWidth >> i <= 600)) {  
+				options.inSampleSize = (int) Math.pow(2.0D, i);  
+				options.inJustDecodeBounds = false;  
+				bitmap = BitmapFactory.decodeFile(pathName, options);  
+				break;  
+			}  
+			i++;  
+		}
+
+		if(bitmap == null) {
+			return pathName;
+		}
+
+		String newPath = FileDealer.getCacheDir() + pathName.substring(pathName.lastIndexOf("/"));
+		File file = new File(newPath);
+		FileOutputStream fOut = new FileOutputStream(file);
+		bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+		return newPath;
+	}
+
+	public static final String upLoadPic2Server(String picPath, String board, Context context) throws IOException {
+		if (picPath == null || picPath.length() == 0) {
 			return "";
 		}
 		LoginInfo loginInfo = LoginInfo.getInstance(context);
-		File file = new File(picPath.get(0));
+		File file = new File(compressBitmapByPath(picPath));
 		HttpClient client;
 		BasicHttpParams httpParameters = new BasicHttpParams();
 		HttpConnectionParams.setConnectionTimeout(httpParameters, 10000);
@@ -390,9 +400,7 @@ public class DocParser {
 			httpResponse = client.execute(uploadGet);
 			if (httpResponse.getStatusLine().getStatusCode() == 200) {
 				result = EntityUtils.toString(httpResponse.getEntity());
-				String urlString = result.substring(result.indexOf("'\\n") + 3, result.indexOf("\\n'"));
-				System.gc();
-				return '\n' + urlString + '\n';
+				return result.substring(result.indexOf("'\\n") + 3, result.indexOf("\\n'"));
 			}
 		}
 		return null;
@@ -425,13 +433,9 @@ public class DocParser {
 		return null;
 	}
 
-	public static final List<Article> getHotArticleTitleList(String url, List<Article> hotList) throws IOException {
-		if(hotList == null) {
-			hotList = new ArrayList<Article>();
-		} else {
-			hotList.clear();
-		}
-		Document doc = Jsoup.connect(url).get();
+	public static final List<Article> getHotArticleTitleList() throws IOException {
+		List<Article> hotList = new ArrayList<Article>();
+		Document doc = Jsoup.connect("http://bbs.nju.edu.cn/bbstopall").get();
 		Elements blocks = doc.select("tr");
 		for (Element block : blocks) {
 			Elements links = block.getElementsByTag("a");
@@ -516,26 +520,27 @@ public class DocParser {
 		}
 	}
 
-	public static final String formatString(String replyContent,String authorName,String picPath, Context context) {
+	public static final String formatString(String replyContent,String authorName, Context context) {
 		String finalString = replyContent;
 		if(replyContent.length() > 40) {
 			StringBuffer buffer = new StringBuffer();
 			double count = 0;
 			for(int i = 0; i <replyContent.length(); i++) {
 				char tmp = replyContent.charAt(i);
-				if(tmp > 255) {
+				if(tmp == '\n') {
+					count = 0;
+				} else if(tmp > 255) {
 					count ++;
 				} else {
 					count += 0.5;
 				}
 				buffer.append(tmp);
-				if (count > 0 && Math.floor(count) % 40 == 0) {
+				if (count > 0 && Math.floor(count) % 40 == 0 && count != 0.5) {
 					buffer.append('\n');
 				}
 			}
 			finalString = buffer.toString();
 		}
-		finalString += picPath;
 		if (authorName != null) {
 			finalString += '\n' + "【在[uid]" + authorName + "[/uid]的大作中提到】";
 		}

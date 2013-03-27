@@ -8,7 +8,7 @@
         style="@style/ContentText"
         android:id="@+id/title"
         android:layout_marginLeft="10dip"
-        android:layout_marginTop="5dip"
+        android:layout_marginTop="6dip"
         android:gravity="left" />
 
     <RelativeLayout

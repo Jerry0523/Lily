@@ -29,6 +29,7 @@ public class PageBackController extends View implements OnGestureListener, OnTou
 	private PageBackListener listener;
 	private int alpha = 255;
 	private View sibling;
+	
 
 	public PageBackController(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -55,11 +56,7 @@ public class PageBackController extends View implements OnGestureListener, OnTou
 	protected void onDraw(Canvas canvas) {
 		if(rect == null) {
 			rect = new Rect(dragDistance, (getHeight() - height) / 2, dragDistance + width, (getHeight() - height) / 2 + height);
-		} else {
-			rect.left = dragDistance;
-			rect.right = dragDistance + width;
 		}
-		paint.setAlpha(alpha);
 		canvas.drawBitmap(controller, null, rect, paint);
 		super.onDraw(canvas);
 	}
@@ -85,6 +82,7 @@ public class PageBackController extends View implements OnGestureListener, OnTou
 	private void reset() {
 		dragDistance = - width;
 		isDrag = false;
+		alpha = 255;
 	}
 
 	private void onDrag(float distance) {
@@ -93,8 +91,16 @@ public class PageBackController extends View implements OnGestureListener, OnTou
 		if(dragDistance > 0) {
 			dragDistance = 0;
 		}
+		
+		if(dragDistance < -width) {
+			dragDistance = -width;
+		}
 		alpha = (int) ((width + dragDistance) * 255 / width);
-		postInvalidate();
+		rect.left = dragDistance;
+		rect.right = dragDistance + width;
+		paint.setAlpha(alpha);
+		
+		postInvalidate(rect.left, rect.top, rect.right, rect.bottom);
 	}
 
 	private void afterDrag() {
@@ -116,10 +122,14 @@ public class PageBackController extends View implements OnGestureListener, OnTou
 	@Override
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
 			float distanceY) {
-		if(distanceX > -5 || Math.abs(distanceY) > 10) {
+		if(Math.abs(distanceX) < 10 || Math.abs(distanceY) > 10) {
 			return false;
 		}
-		onDrag(-distanceX);
+		
+		if(distanceX > 0 && !isDrag) {
+			return false;
+		}
+		onDrag(-distanceX / 2);
 		return true;
 	}
 
@@ -154,13 +164,10 @@ public class PageBackController extends View implements OnGestureListener, OnTou
 
 		@Override
 		protected Void doInBackground(Integer... params) {
-			int times;
-			if ((width + dragDistance) % Math.abs(params[0])  ==  0) {
-				times  =  (width + dragDistance) / Math.abs(params[0]);
-			} else {
-				times  =  (width + dragDistance) / Math.abs(params[0]) + 1;
+			int times = (int) Math.ceil((width + dragDistance) / 20.0);
+			if(times < 1) {
+				times = 1;
 			}
-
 			for (int i  =  0; i < times; i++) {
 				publishProgress(params);
 				try {
@@ -178,7 +185,12 @@ public class PageBackController extends View implements OnGestureListener, OnTou
 			if(dragDistance < -width) {
 				reset();
 			}
-			postInvalidate();
+			
+			alpha = (int) ((width + dragDistance) * 255 / width);
+			rect.left = dragDistance;
+			rect.right = dragDistance + width;
+			paint.setAlpha(alpha);
+			postInvalidate(rect.left, rect.top, rect.right, rect.bottom);
 		}
 	}
 
