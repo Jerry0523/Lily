@@ -52,10 +52,11 @@
         android:gravity="top"
         android:inputType="textMultiLine"
         android:padding="10dip"
-        android:textSize="15sp"
-        android:textColor="@android:color/background_dark" />
+        android:textColor="@android:color/background_dark"
+        android:textSize="15sp" />
 
     <TableRow
+        android:id="@+id/reply_toolbar_region"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/input_toolbar_background"
@@ -98,7 +99,48 @@
             android:background="@null"
             android:contentDescription="@string/about"
             android:src="@drawable/picture" />
+
+        <ImageButton
+            android:id="@+id/reply_at"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dip"
+            android:layout_weight="1"
+            android:background="@null"
+            android:contentDescription="@string/about"
+            android:src="@drawable/at" />
     </TableRow>
+
+    <LinearLayout
+        android:id="@+id/reply_at_input_region"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/input_toolbar_background"
+        android:orientation="horizontal"
+        android:visibility="gone" >
+
+        <EditText
+            android:id="@+id/reply_at_input"
+            android:layout_width="0dip"
+            android:layout_height="fill_parent"
+            android:layout_weight="0.8"
+            android:background="@null"
+            android:gravity="center_vertical"
+            android:hint="输入想要@的帐号名"
+            android:inputType="textNoSuggestions"
+            android:padding="5dip"
+            android:textColor="@android:color/background_light" />
+
+        <ImageButton
+            android:id="@+id/reply_at_add"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dip"
+            android:layout_weight="0.2"
+            android:background="@null"
+            android:contentDescription="@string/about"
+            android:src="@drawable/at" />
+    </LinearLayout>
 
     <GridView
         android:id="@+id/gridview"

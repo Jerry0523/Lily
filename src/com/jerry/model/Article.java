@@ -9,8 +9,11 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.jerry.utils.DatabaseDealer;
 
 public class Article implements Parcelable{
 	private String title;
@@ -28,8 +31,14 @@ public class Article implements Parcelable{
 		
 	}
 	
-	public Article(String url, List<String> blockList) throws IOException {
-		articleList = getSingleArticleList(url, blockList, true);
+	public Article(String url, Context context) throws IOException {
+		articleList = getSingleArticleList(url, context, true);
+	}
+	
+	public void refresh(String url, Context context) throws IOException {
+		List<SingleArticle> list = getSingleArticleList(url, context, true);
+		articleList.clear();
+		articleList.addAll(list);
 	}
 	
 	public static final Parcelable.Creator<Article> CREATOR = new Creator<Article>() {  
@@ -117,11 +126,8 @@ public class Article implements Parcelable{
 		return 0;
 	}
 	
-	public SingleArticle getSingleArticle(int index) {
-		if(isArticleListNotEmpty() && articleList.size() > index) {
-			return articleList.get(index);
-		}
-		return null;
+	public List<SingleArticle> getSingleArticleList() {
+		return articleList;
 	}
 	
 	public String getArticleAuthorName() {
@@ -152,7 +158,8 @@ public class Article implements Parcelable{
 		}
 	}
 	
-	private final  List<SingleArticle> getSingleArticleList(String url, List<String> blockList, boolean isConstruction) throws IOException {
+	private final  List<SingleArticle> getSingleArticleList(String url, Context context, boolean isConstruction) throws IOException {
+		List<String> blockList = DatabaseDealer.getBlockList(context);
 		List<SingleArticle> list = new ArrayList<SingleArticle>(); 
 		Document doc = Jsoup.connect(url).get();
 		Elements blocks = doc.select("tr");
@@ -187,8 +194,8 @@ public class Article implements Parcelable{
 		return list;
 	}
 	
-	public void addSingleArticles(String url, List<String> blockList) throws IOException {
-		List<SingleArticle> more = getSingleArticleList(url, blockList, false);
+	public void addSingleArticles(String url, Context context) throws IOException {
+		List<SingleArticle> more = getSingleArticleList(url, context, false);
 		more.remove(0);
 		articleList.addAll(more);
 	}
@@ -200,11 +207,7 @@ public class Article implements Parcelable{
 		return 0;
 	}
 	
-	public int getTotalArticleCount() {
-		return totalArticleCount;
-	}
-	
 	public boolean isNeedPullLoadMore() {
-		return getTotalArticleCount() > getCurrentArticleCount();
+		return totalArticleCount > getCurrentArticleCount();
 	}
 }

@@ -3,7 +3,9 @@ package com.jerry.utils;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -15,41 +17,45 @@ import com.jerry.lily.ArticleActivity;
 import com.jerry.lily.R;
 
 public class PicDownloader {
-	private static ArticleActivity context;
-	private static ExecutorService executorService = Executors.newSingleThreadExecutor();
-	public static Map<String, Drawable> picMemoryCache = new HashMap<String, Drawable>();
+	private ArticleActivity context;
+	private ExecutorService executorService = Executors.newFixedThreadPool(2);
+	public Map<String, Drawable> picMemoryCache = new HashMap<String, Drawable>();
+	
+	private Set<String> downloadingKey = new HashSet<String>();
+	private int screenWidth;
+	private static PicDownloader THIS;
 
-	private static int screenWidth;
-
-	public static final void getInstance(ArticleActivity articleActivity) {
-		context = articleActivity;
-		DisplayMetrics metric = new DisplayMetrics();
-		context.getWindowManager().getDefaultDisplay().getMetrics(metric);
-		screenWidth = metric.widthPixels;
+	public static final PicDownloader getInstance(ArticleActivity articleActivity) {
+		if(THIS == null) {
+			THIS = new PicDownloader();
+			DisplayMetrics metric = new DisplayMetrics();
+			articleActivity.getWindowManager().getDefaultDisplay().getMetrics(metric);
+			THIS.screenWidth = metric.widthPixels;
+		}
+		THIS.context = articleActivity;
+		return THIS;
 	}
 
-	public static final int getScreenWidth() {
-		return screenWidth;
+	public static final PicDownloader getInstance() {
+		return THIS;
 	}
 
-	public static final Drawable getPictureDrawable(String url) {
+	public final Drawable getPictureDrawable(String url) {
 		Drawable drawable = null;
 		String picDir = FileDealer.getCacheDir() + url.substring(url.lastIndexOf("/"));
 		if(picMemoryCache.containsKey(picDir)) {
-			return dealWithPictureSize(picMemoryCache.get(picDir), picDir);
+			return dealWithPictureSize(picMemoryCache.get(picDir), null);
 		} else if(new File(picDir).exists()) {
 			drawable = BitmapDrawable.createFromPath(picDir);
-		} else {
+		} else if(!downloadingKey.contains(url)){
 			downLoadPic(url);
 		}
 		return dealWithPictureSize(drawable, drawable == null ? null : picDir);
 	}
 
-	private static final Drawable dealWithPictureSize(Drawable drawable, String key) {
+	private final Drawable dealWithPictureSize(Drawable drawable, String key) {
 		if(drawable == null) {
 			drawable = context.getResources().getDrawable(R.drawable.downloading);
-			drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
-			return drawable;
 		}
 		int realWidth = drawable.getIntrinsicWidth();
 		int realHeight = drawable.getIntrinsicHeight();
@@ -64,15 +70,17 @@ public class PicDownloader {
 		return drawable;
 	}
 
-	public static final void downLoadPic(final String url) {
+	public final void downLoadPic(final String url) {
 		if(context == null || !DatabaseDealer.getSettings(context).isShowPic()) {
 			return;
 		}
+		downloadingKey.add(url);
 		executorService.submit(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					FileDealer.downloadBitmap(url, screenWidth);
+					downloadingKey.remove(url);
 					context.refreshPic();
 				} catch (IOException e) {
 				}
@@ -80,20 +88,21 @@ public class PicDownloader {
 		});
 	}
 
-	public static final void clearMemoryPicCache() {
+	public final void clearMemoryPicCache() {
 		for (Object obj : picMemoryCache.keySet()) {
-			 Drawable pic = picMemoryCache.get(obj);
-			 if(pic instanceof BitmapDrawable) {
-				 ((BitmapDrawable)pic).getBitmap().recycle();
-			 }
+			Drawable pic = picMemoryCache.get(obj);
+			if(pic instanceof BitmapDrawable) {
+				((BitmapDrawable)pic).getBitmap().recycle();
+			}
 		}
 		picMemoryCache.clear();
+		downloadingKey.clear();
 	}
 
-	public static final void stopDownloadThread() {
+	public final void stopDownloadThread() {
 		clearMemoryPicCache();
 		executorService.shutdownNow();
-		executorService = Executors.newSingleThreadExecutor();
+		executorService = Executors.newFixedThreadPool(2);
 		context = null;
 	}
 }

@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
@@ -29,7 +28,7 @@ public class PageBackController extends View implements OnGestureListener, OnTou
 	private PageBackListener listener;
 	private int alpha = 255;
 	private View sibling;
-	
+
 
 	public PageBackController(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -91,7 +90,7 @@ public class PageBackController extends View implements OnGestureListener, OnTou
 		if(dragDistance > 0) {
 			dragDistance = 0;
 		}
-		
+
 		if(dragDistance < -width) {
 			dragDistance = -width;
 		}
@@ -99,7 +98,7 @@ public class PageBackController extends View implements OnGestureListener, OnTou
 		rect.left = dragDistance;
 		rect.right = dragDistance + width;
 		paint.setAlpha(alpha);
-		
+
 		postInvalidate(rect.left, rect.top, rect.right, rect.bottom);
 	}
 
@@ -110,7 +109,10 @@ public class PageBackController extends View implements OnGestureListener, OnTou
 				listener.onPageBack();
 			}
 		} else {
-			new  AsynMove().execute(new Integer[] {20});
+			reset();
+			rect.left = dragDistance;
+			rect.right = dragDistance + width;
+			postInvalidate();
 		}
 	}
 
@@ -125,11 +127,11 @@ public class PageBackController extends View implements OnGestureListener, OnTou
 		if(Math.abs(distanceX) < 10 || Math.abs(distanceY) > 10) {
 			return false;
 		}
-		
+
 		if(distanceX > 0 && !isDrag) {
 			return false;
 		}
-		onDrag(-distanceX / 2);
+		onDrag(-distanceX * 2 / 3);
 		return true;
 	}
 
@@ -158,40 +160,6 @@ public class PageBackController extends View implements OnGestureListener, OnTou
 			return sibling.dispatchTouchEvent(event);
 		}
 		return true;
-	}
-
-	private class AsynMove extends AsyncTask<Integer, Integer, Void> {
-
-		@Override
-		protected Void doInBackground(Integer... params) {
-			int times = (int) Math.ceil((width + dragDistance) / 20.0);
-			if(times < 1) {
-				times = 1;
-			}
-			for (int i  =  0; i < times; i++) {
-				publishProgress(params);
-				try {
-					Thread.sleep(Math.abs(params[0]));
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			return null;
-		}
-
-		@Override
-		protected void onProgressUpdate(Integer... params) {
-			dragDistance -= params[0];
-			if(dragDistance < -width) {
-				reset();
-			}
-			
-			alpha = (int) ((width + dragDistance) * 255 / width);
-			rect.left = dragDistance;
-			rect.right = dragDistance + width;
-			paint.setAlpha(alpha);
-			postInvalidate(rect.left, rect.top, rect.right, rect.bottom);
-		}
 	}
 
 	public interface PageBackListener {

@@ -331,7 +331,7 @@ public class XListView extends ListView implements OnScrollListener{
 	public void setXListViewListener(IXListViewListener l) {
 		mListViewListener = l;
 	}
-	
+
 	public void removeXListViewListener() {
 		mListViewListener = null;
 	}
@@ -360,7 +360,9 @@ public class XListView extends ListView implements OnScrollListener{
 	public void setFooterViewForbidden(boolean isFooterViewForbidden) {
 		this.isFooterViewForbidden = isFooterViewForbidden;
 		if(isFooterViewForbidden) {
-			this.removeFooterView(mFooterView);
+			mFooterView.setVisibility(View.GONE);
+		} else {
+			mFooterView.setVisibility(View.VISIBLE);
 		}
 	}
 }

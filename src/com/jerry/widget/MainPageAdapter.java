@@ -12,7 +12,6 @@ public class MainPageAdapter extends PagerAdapter{
 	private List<View> mListView;
 
 	public MainPageAdapter(List<View> list) {
-		// TODO Auto-generated method stub
 		this.mListView= list;
 	}
 

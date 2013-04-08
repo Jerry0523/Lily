@@ -3,23 +3,17 @@ package com.jerry.lily;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import android.annotation.SuppressLint;
 import android.app.ListActivity;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -27,31 +21,34 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jerry.model.Article;
+import com.jerry.model.ArticleGroup;
 import com.jerry.utils.Constants;
 import com.jerry.utils.DatabaseDealer;
 import com.jerry.utils.DocParser;
+import com.jerry.widget.BoardListAdapter;
 import com.jerry.widget.IOSWaitingDialog;
 import com.jerry.widget.PageBackController;
 import com.jerry.widget.PageBackController.PageBackListener;
 import com.jerry.widget.XListView;
 import com.jerry.widget.XListView.IXListViewListener;
 
+@SuppressLint("HandlerLeak")
 public class BoardList extends ListActivity implements IXListViewListener, OnClickListener, PageBackListener{
 	private String boardName;
 	private List<Article> articleList;
 	private IOSWaitingDialog waitingDialog;
-	private List<Map<String, String>> contentList;
-	private boolean isPull = false;
 	private PageBackController controller;
+	private String nextTargetUrl;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.singleboard);
+		waitingDialog = IOSWaitingDialog.createDialog(this);
+		waitingDialog.show();
 		initComponents();
-		initList("http://bbs.nju.edu.cn/bbstdoc?board=" + boardName);
 	}
-	
+
 	@Override
 	protected void onDestroy() {
 		controller.onDestroy();
@@ -64,6 +61,7 @@ public class BoardList extends ListActivity implements IXListViewListener, OnCli
 	}
 
 	private void initComponents() {
+		articleList = new ArrayList<Article>();
 		boardName = getIntent().getStringExtra("boardName");
 		Button backButton = (Button) findViewById(R.id.sb_bbutton);
 		ImageButton moreMenu = (ImageButton) findViewById(R.id.sb_menu);
@@ -77,38 +75,27 @@ public class BoardList extends ListActivity implements IXListViewListener, OnCli
 		controller.setPageBackListener(this);
 		controller.setSibling(getListView());
 		getListView().setXListViewListener(this);
-	}
-
-	public static final class ViewHolder{
-		public TextView title;
-		public TextView author;
-		public TextView reply;
+		initList();
 	}
 
 	private Handler mHandler = new Handler(){ 
 		@Override
 		public void handleMessage(Message msg) {
-			switch (msg.arg1) {
-			case 12:
-				if (waitingDialog != null) {
-					waitingDialog.dismiss();
+			switch (msg.what) {
+			case 0:
+				if(getListAdapter() == null) {
+					setListAdapter(new BoardListAdapter(BoardList.this, R.layout.list_board_article, articleList));
+				} else {
+					getListAdapter().notifyDataSetChanged();
 				}
-				Toast.makeText(getApplicationContext(), "网络异常，请稍后再试!", Toast.LENGTH_SHORT).show();
-				onBackPressed();
 				break;
-			case 13:
-				if (waitingDialog != null) {
-					waitingDialog.dismiss();
-				}
-				Toast.makeText(getApplicationContext(), "网络异常，请稍后再试!", Toast.LENGTH_SHORT).show();
+			case 1:
+				Toast.makeText(BoardList.this, "网络异常，请稍后再试!", Toast.LENGTH_SHORT).show();
 				break;
-			case 16:
-				afterThread();
-				break;
-			case 17:
-				Toast.makeText(getApplicationContext(), "网络异常，请稍后再试!", Toast.LENGTH_SHORT).show();
-				onLoad();
-				break;
+			}
+			onLoad();
+			if (waitingDialog != null) {
+				waitingDialog.dismiss();
 			}
 		}
 	};
@@ -119,99 +106,35 @@ public class BoardList extends ListActivity implements IXListViewListener, OnCli
 		getListView().setRefreshTime(DocParser.getLastUpdateTime());
 	}
 
-	private void afterThread() {
-		if(getListAdapter() == null) {
-			setListAdapter(new MyAdapter(DatabaseDealer.getSettings(BoardList.this).isNight() ? R.layout.list_board_article_night : R.layout.list_board_article));
-		} else {
-			getListAdapter().notifyDataSetChanged();
-		}
-		onLoad();
-		if (waitingDialog != null) {
-			waitingDialog.dismiss();
-		}
-
-	}
-
-	private void initList(String url) {
-		final String boardUrl = url;
-		if(getListAdapter() == null) {
-			if(waitingDialog == null) {
-				waitingDialog = IOSWaitingDialog.createDialog(this);
-			}
-			waitingDialog.show();
-		}
-
-		(new AsyncTask<Object, Object, List<Article> >() {
-
-			@Override
-			protected void onPostExecute(List<Article> result) {
-				articleList = (result == null ? new ArrayList<Article>() : result);
-				Collections.reverse(articleList);
-				contentList = getData();
-				afterThread();
-				if(articleList.size() == 0) {
-					Toast.makeText(getApplicationContext(), "网络异常，请稍后再试!", Toast.LENGTH_SHORT).show();
-				}
-			}
-
-			@Override
-			protected List<Article>  doInBackground(Object... params) {
-				try {
-					return DocParser.getBoardArticleTitleList(boardUrl, boardName, DatabaseDealer.getBlockList(BoardList.this));
-				} catch (Exception e) {
-					e.printStackTrace();
-				} 
-				return null;
-			}
-		}).execute("");
-	}
-
-	private void loadMoreList(String url) {
-		final String boardUrl = url;
+	private void initList() {
+		final String url = "http://bbs.nju.edu.cn/bbstdoc?board=" + boardName;
 		Thread thread = new Thread(new Runnable() {
+
 			@Override
 			public void run() {
-				Message  msg = Message.obtain();
-				List<Article> more = null;
+				int result = 0;
 				try {
-					more = DocParser.getBoardArticleTitleList(boardUrl, boardName, DatabaseDealer.getBlockList(BoardList.this));
+					ArticleGroup articleGroup = ArticleGroup.getBoardArticleTitleList(url, boardName, BoardList.this);
+					if(articleGroup == null) {
+						throw new IOException();
+					}
+					List<Article> list = articleGroup.getArticleList();
+					nextTargetUrl = articleGroup.getNextTargetUrl();
+					if(list == null) {
+						throw new IOException();
+					}
+					articleList.clear();
+					articleList.addAll(list);
 				} catch (IOException e) {
-					msg.arg1 = 17;
-					mHandler.sendMessage(msg);
+					result = 1;
 				} catch (ParseException e) {
-					e.printStackTrace();
+					result = 1;
+				} finally {
+					mHandler.sendEmptyMessage(result);
 				}
-				if(more == null) {
-					msg.arg1 = 17;
-					mHandler.sendMessage(msg);
-					return;
-				}
-				Collections.reverse(more);
-				articleList.set(0, more.get(0));
-				addData(more);
-				if(!isPull) {
-					isPull = true;
-				}
-				msg.arg1 = 16;
-				mHandler.sendMessage(msg);
 			}
 		});
 		thread.start();
-	}
-	private void addData(List<Article> more) {
-		if(contentList == null) {
-			contentList = new ArrayList<Map<String, String>>();
-		}
-		int start = isPull ? 2 : 1;
-		for (int i = start; i < more.size(); i ++) {
-			Article article = more.get(i);
-			articleList.add(article);
-			Map<String, String> map = new HashMap<String, String>();
-			map.put("title", article.getTitle());
-			map.put("author", article.getAuthorName() + "发表于" + article.getDetailTime());
-			map.put("reply", article.getReplyCount() + "/" + article.getViewCount());
-			contentList.add(map);
-		}
 	}
 
 	@Override
@@ -249,7 +172,7 @@ public class BoardList extends ListActivity implements IXListViewListener, OnCli
 			overridePendingTransition(R.anim.slide_right_in, R.anim.slide_left_out);
 			break;
 		case Constants.SEND_REPLY:
-			initList("http://bbs.nju.edu.cn/bbstdoc?board=" + boardName);
+			initList();
 			break;
 		case Constants.CANCEL_REPLY:
 			break;
@@ -272,9 +195,7 @@ public class BoardList extends ListActivity implements IXListViewListener, OnCli
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
-		if(position == articleList.size()) {
-			return;
-		}
+		position--;
 		Intent intent = new Intent(this, ArticleActivity.class);
 		intent.putExtra("board", boardName);
 		intent.putExtra("contentUrl", articleList.get(position).getContentUrl());
@@ -283,80 +204,41 @@ public class BoardList extends ListActivity implements IXListViewListener, OnCli
 		overridePendingTransition(R.anim.slide_right_in, R.anim.slide_left_out);
 	}
 
-	private List<Map<String, String>> getData() {
-		List<Map<String, String>> list = new ArrayList<Map<String, String>>();
-		for (int i = 1; i < articleList.size(); i ++) {
-			Article article = articleList.get(i);
-			Map<String, String> map = new HashMap<String, String>();
-			map.put("title", article.getTitle());
-			map.put("author", article.getAuthorName() + "发表于" + article.getDetailTime());
-			map.put("reply", article.getReplyCount() + "/" + article.getViewCount());
-			list.add(map);
-		}
-		return list;
-	}
-
 	@Override
 	public void onRefresh() {
-		final String boardUrl = "http://bbs.nju.edu.cn/bbstdoc?board=" + boardName;
-		initList(boardUrl);
+		initList();
 	}
 
 	@Override
 	public void onLoadMore() {
-		final String boardUrl = "http://bbs.nju.edu.cn/" + articleList.get(0).getBoard();
-		loadMoreList(boardUrl);
+		Thread thread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				int result = 0;
+				try {
+					ArticleGroup articleGroup = ArticleGroup.getBoardArticleTitleList(nextTargetUrl, boardName, BoardList.this);
+					if(articleGroup == null) {
+						throw new IOException();
+					}
+					List<Article> more = articleGroup.getArticleList();
+					more.remove(0);
+					nextTargetUrl = articleGroup.getNextTargetUrl();
+					articleList.addAll(more);
+				} catch (IOException e) {
+					result = 1;
+				} catch (ParseException e) {
+					result = 1;
+				} finally {
+					mHandler.sendEmptyMessage(result);
+				}
+			}
+		});
+		thread.start();
 	}
 
 	@Override
-	public MyAdapter getListAdapter() {
-		return (MyAdapter) super.getListAdapter();
-	}
-
-	private class MyAdapter extends BaseAdapter {
-
-		private int layoutID;
-		private LayoutInflater  mInflater;
-
-		public MyAdapter(int layoutID) {
-			this.layoutID = layoutID;
-			this.mInflater = BoardList.this.getLayoutInflater();
-		}
-		@Override
-		public int getCount() {
-			return contentList.size();
-		}
-
-		@Override
-		public Object getItem(int position) {
-			return null;
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			ViewHolder holder;
-			if(convertView == null) {
-				convertView = mInflater.inflate(layoutID, null);
-				holder = new ViewHolder();
-				holder.title = (TextView) convertView.findViewById(R.id.lb_title);
-				holder.author = (TextView) convertView.findViewById(R.id.lb_author);
-				holder.reply = (TextView) convertView.findViewById(R.id.lb_reply);
-				convertView.setTag(holder);
-			} else {
-				holder = (ViewHolder) convertView.getTag();
-			}
-			Map<String, String> map = contentList.get(position);
-			holder.title.setText(map.get("title").substring(1));
-			holder.author.setText(map.get("author"));
-			holder.reply.setText(map.get("reply"));
-			return convertView;
-		}
-
+	public BoardListAdapter getListAdapter() {
+		return (BoardListAdapter) super.getListAdapter();
 	}
 
 	@Override

@@ -146,8 +146,8 @@ public class DatabaseDealer {
 		}
 
 		if(sign == null) {
-			insertSettings(context, "sign", Constants.sign);
-			sign = Constants.sign;
+			insertSettings(context, "sign", Constants.SIGN);
+			sign = Constants.SIGN;
 		}
 
 		if(fontSize == null) {

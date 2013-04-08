@@ -95,10 +95,10 @@ public class Author extends Activity implements PageBackListener{
 				}
 				image.startAnimation(fadein);
 				
-				((TextView)findViewById(R.id.author_post)).setText("发文数\n" + totalPost);
-				((TextView)findViewById(R.id.author_login)).setText("上站数\n" + totalLogin);
-				((TextView)findViewById(R.id.author_experience)).setText("经验值\n" + experienceValue);
-				((TextView)findViewById(R.id.author_act)).setText("表现值\n" + actValue);
+				((TextView)findViewById(R.id.author_post)).setText("发文数\n"+ totalPost.substring(0, totalPost.length() - 1));
+				((TextView)findViewById(R.id.author_login)).setText("上站数\n" + totalLogin.substring(0, totalLogin.length() - 1));
+				((TextView)findViewById(R.id.author_experience)).setText("经验值\n" + experienceValue.substring(0, experienceValue.length() - 1));
+				((TextView)findViewById(R.id.author_act)).setText("表现值\n" + actValue.substring(0, actValue.length() - 1));
 				((TextView)findViewById(R.id.author_life)).setText("生命力\n" + lifeValue);
 				
 				infor.setMovementMethod(LinkMovementMethod.getInstance());
@@ -153,8 +153,6 @@ public class Author extends Activity implements PageBackListener{
 				onBackPressed();
 			}
 		});
-
-		final String authorUrl = getIntent().getStringExtra("authorUrl");
 		final String authorName = getIntent().getStringExtra("authorName");
 		acc.setText(authorName);
 
@@ -240,7 +238,7 @@ public class Author extends Activity implements PageBackListener{
 				Message msg = Message.obtain();
 				Bundle bundle;
 				try {
-					bundle = DocParser.getAuthorInfo(authorUrl,authorName);
+					bundle = DocParser.getAuthorInfo(authorName);
 				} catch (IOException e) {
 					msg.arg1 = 10;
 					mHandler.sendMessage(msg);

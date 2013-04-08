@@ -21,13 +21,13 @@ public class PictureSpan extends DynamicDrawableSpan{
 
 	@Override
 	public Drawable getDrawable() {
-		Drawable drawable = PicDownloader.getPictureDrawable(picSource);
+		Drawable drawable = PicDownloader.getInstance().getPictureDrawable(picSource);
 		if(drawable.getBounds() == null) {
 			drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
 		}
 		return drawable;
 	}
-	
+
 	public ClickableSpan getClickAction() {
 		return new ClickableSpan() {
 			@Override

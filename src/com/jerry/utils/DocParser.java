@@ -1,22 +1,12 @@
 package com.jerry.utils;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.charset.Charset;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,14 +32,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import android.accounts.AccountsException;
 import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
-import com.jerry.lily.Welcome;
 import com.jerry.model.Article;
 import com.jerry.model.LoginInfo;
 import com.jerry.model.Mail;
@@ -186,22 +174,6 @@ public class DocParser {
 		return bundle;
 	}
 
-	public static final void keepConnected(Context context) throws IOException {
-		LoginInfo loginInfo = LoginInfo.getInstance(context);
-		String url = "http://bbs.nju.edu.cn/" + loginInfo.getLoginCode() + "/bbsnewmail";
-		HttpPost httpRequest = new HttpPost(url);
-		httpRequest.addHeader("Cookie", loginInfo.getLoginCookie());
-		HttpResponse httpResponse;
-		httpResponse = new DefaultHttpClient().execute(httpRequest);
-		if (httpResponse.getStatusLine().getStatusCode() == 200) {
-			String result = EntityUtils.toString(httpResponse.getEntity());
-			if(result.contains("´íÎó! ÄúÉÐÎ´µÇÂ¼, ÇëÏÈµÇÂ¼!")) {
-				LoginInfo.resetLoginInfo(context);
-				keepConnected(context);
-			}
-		}
-	}
-
 	public static final List<Mail> getMailList(List<String> blockList, Context context) throws IOException{
 		List<Mail> list = new ArrayList<Mail>();
 		LoginInfo loginInfo;
@@ -238,99 +210,6 @@ public class DocParser {
 
 		}
 		return list;
-	}
-	/*
-	 * ·µ»ØÒ»¸öÒ³ÃæËùÓÐÌû×ÓµÄ×ÜÌåList£¬±ÈÈçÊ®´óÌû×ÓµÄList
-	 */
-	public static final List<Article> getTopArticleTitleList(Context context) throws IOException {
-		List<String> blockList = DatabaseDealer.getBlockList(context);
-		List<Article> list = new ArrayList<Article>(); 
-		Document doc = Jsoup.connect("http://bbs.nju.edu.cn/bbstop10").timeout(5000).get();
-		Elements blocks = doc.select("tr");
-		for (Element block : blocks) {
-			Elements links = block.select("a[href]");
-			if (links.size()==0) {
-				continue;
-			}
-			links = block.select("td");
-			String authorName = links.get(3).select("a").text();
-			if(blockList.contains(authorName)) {
-				continue;
-			}
-			Article article = new Article();
-			article.setAuthorName(authorName);
-			article.setBoard(links.get(1).select("a").text());
-			article.setContentUrl(links.get(2).select("a").attr("abs:href"));
-			article.setViewCount(Integer.valueOf(links.get(4).text()));
-			article.setTitle(links.get(2).select("a").text());
-			list.add(article);
-		}
-		return list;
-	}
-
-	public static final List<Article> getBoardArticleTitleList(String url, String boardName, List<String>blockList) throws IOException, ParseException {
-		List<Article> list = new ArrayList<Article>(); 
-		Document doc = Jsoup.connect(url).get();
-		Elements blocks = doc.select("tr");
-		for (Element block : blocks) {
-			Elements links = block.getElementsByTag("a");
-			if (links.size() == 0) {
-				continue;
-			}
-			String authorName = links.get(0).select("a").text();
-			if(blockList.contains(authorName)) {
-				continue;
-			}
-			Article article = new Article();
-			article.setAuthorName(authorName);
-			article.setTitle(links.get(1).select("a").text());
-			article.setContentUrl(links.get(1).select("a").attr("abs:href"));
-
-			Element author = links.get(0).parent();
-			if(author != null) {
-				Element time = author.nextElementSibling();
-				SimpleDateFormat dateFormat =  new SimpleDateFormat("MMM dd HH:mm yyyy",Locale.ENGLISH);
-				Calendar now = Calendar.getInstance();
-				Date value = dateFormat.parse(time.text() + " " + String.valueOf(now.get(Calendar.YEAR)));
-				article.setTime(value.getTime());
-			}
-
-			Elements fonts = block.getElementsByTag("font");
-			article.setViewCount(Integer.valueOf(fonts.get(fonts.size() - 1).select("font").text()));
-			if (fonts.get(0).select("nobr").size() == 0) {
-				article.setReplyCount(Integer.valueOf(fonts.get(fonts.size() - 2).select("font").text()));
-			}
-			list.add(article);
-		}
-		String allString = doc.toString();
-		int i = allString.indexOf("<a href=\"bbstdoc?board=" + boardName + "&amp;start=");
-		Document subDoc = Jsoup.parse(allString.substring(i));
-		Elements links = subDoc.getElementsByTag("a");
-		Article article = new Article();
-		article.setBoard(links.get(0).select("a").attr("href"));
-		list.add(article);
-		return list;
-	}
-
-	public static boolean sendReply(String boardName,String title, String pidString,String reIdString,String replyContent, String authorName, Context context) throws IOException {
-		LoginInfo loginInfo = LoginInfo.getInstance(context);
-		String newurlString = "http://bbs.nju.edu.cn/" + loginInfo.getLoginCode() + "/bbssnd?board=" + boardName;
-		HttpPost httpRequest = new HttpPost(newurlString);
-		ArrayList<NameValuePair> postData = new ArrayList<NameValuePair>();
-		postData.add(new BasicNameValuePair("title", title));
-		postData.add(new BasicNameValuePair("pid", pidString));
-		postData.add(new BasicNameValuePair("reid", reIdString));
-		postData.add(new BasicNameValuePair("signature", "1"));
-		postData.add(new BasicNameValuePair("autocr", "on"));
-		postData.add(new BasicNameValuePair("text", DocParser.formatString(replyContent, authorName, context)));
-		httpRequest.addHeader("Cookie", loginInfo.getLoginCookie());
-		httpRequest.setEntity(new UrlEncodedFormEntity(postData, "GB2312"));
-		HttpResponse httpResponse = new DefaultHttpClient().execute(httpRequest);
-		if (httpResponse.getStatusLine().getStatusCode() == 200) {
-			return true;
-		}
-
-		return false;
 	}
 
 	private static String compressBitmapByPath(String pathName) throws IOException {
@@ -406,54 +285,9 @@ public class DocParser {
 		return null;
 	}
 
-	public static final String getPid(String replyUrl, Context context) throws IOException {
-		LoginInfo loginInfo = LoginInfo.getInstance(context);
-		String tempString = "http://bbs.nju.edu.cn/" + loginInfo.getLoginCode() + replyUrl.substring(replyUrl.indexOf("/bbspst"));
-		URL mUrl;
-		mUrl = new URL(tempString);
-		HttpURLConnection conn;
-		conn = (HttpURLConnection) mUrl.openConnection();
-		conn.setRequestProperty("Cookie", loginInfo.getLoginCookie());
-		conn.setRequestMethod("GET");
-		conn.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
-		conn.connect();
-		InputStream in = conn.getInputStream(); 
-		BufferedReader reader1 = new BufferedReader(new InputStreamReader(in,"gb2312")); 
-		String inputLine = null;
-		while ((inputLine = reader1.readLine()) != null) {  
-			if ( inputLine.contains("name=pid") ) {
-				String temp = inputLine.substring(inputLine.indexOf("name=pid"));
-				if (temp.indexOf("value='")!=-1 && temp.indexOf("'>")!=-1) {
-					reader1.close();
-					in.close();
-					return temp.substring(temp.indexOf("value='") + 7,temp.indexOf("'>"));
-				}
-			}
-		}
-		return null;
-	}
-
-	public static final List<Article> getHotArticleTitleList() throws IOException {
-		List<Article> hotList = new ArrayList<Article>();
-		Document doc = Jsoup.connect("http://bbs.nju.edu.cn/bbstopall").get();
-		Elements blocks = doc.select("tr");
-		for (Element block : blocks) {
-			Elements links = block.getElementsByTag("a");
-			if (links.size() == 0) {
-				continue;
-			}
-			Article article = new Article();
-			article.setTitle(links.get(0).select("a").text());
-			article.setContentUrl(links.get(0).select("a").attr("abs:href"));
-			article.setBoard(links.get(1).select("a").text());
-			hotList.add(article);
-		}
-		return hotList;
-	}
-
-	public static final Bundle getAuthorInfo(String authorUrl,String authorName) throws IOException {
+	public static final Bundle getAuthorInfo(String authorName) throws IOException {
 		Bundle bundle = new Bundle();
-		String doc = Jsoup.connect(authorUrl).get().toString();
+		String doc = Jsoup.connect("http://bbs.nju.edu.cn/bbsqry?userid=" + authorName).get().toString();
 		if(doc.indexOf("[[1;36m") > 0) {
 			bundle.putBoolean("isMale", true);
 		} else if(doc.indexOf("[[1;35m") > 0) {
@@ -492,36 +326,8 @@ public class DocParser {
 		}
 		return bundle;
 	}
-
-	public static final LoginInfo login(Bundle userInfo) throws IOException, AccountsException {
-		return login(userInfo.getString("username"),userInfo.getString("password"));
-	}
-
-	public static final LoginInfo login(String username, String password) throws IOException,AccountsException {
-		int s = new Random().nextInt(99999)%(90000) + 10000;
-		String urlString = "http://bbs.nju.edu.cn/vd" + String.valueOf(s) + "/bbslogin?type=2&id=" + username + "&pw=" + password;
-		String doc = Jsoup.connect(urlString).get().toString();
-		if (doc.indexOf("setCookie") < 0) {
-			throw new AccountsException();
-		} else {
-			LoginInfo info = new LoginInfo();
-			String loginString = doc.substring(doc.indexOf("setCookie"));
-			loginString =  loginString.substring(11, loginString.indexOf(")") - 1) + "+vd" + String.valueOf(s);
-			String[] tmpString =  loginString.split("\\+");
-			String _U_KEY = String.valueOf(Integer.parseInt(tmpString[1])-2);
-			String[] loginTmp = tmpString[0].split("N");
-			String _U_UID = loginTmp[1];
-			String _U_NUM = "" + String.valueOf(Integer.parseInt(loginTmp[0]) + 2);
-			info.setLoginCookie("_U_KEY=" + _U_KEY + "; " + "_U_UID=" + _U_UID + "; " + "_U_NUM=" + _U_NUM + ";");
-			info.setLoginCode(tmpString[2]);
-			info.setUsername(username);
-			info.setPassword(password);
-			return info;
-		}
-	}
-
-	public static final String formatString(String replyContent,String authorName, Context context) {
-		String finalString = replyContent;
+	
+	public static final String formatSingleLine(String replyContent) {
 		if(replyContent.length() > 40) {
 			StringBuffer buffer = new StringBuffer();
 			double count = 0;
@@ -539,8 +345,14 @@ public class DocParser {
 					buffer.append('\n');
 				}
 			}
-			finalString = buffer.toString();
+			return buffer.toString();
+		} else {
+			return replyContent;
 		}
+	}
+
+	public static final String formatString(String replyContent,String authorName, Context context) {
+		String finalString = formatSingleLine(replyContent);
 		if (authorName != null) {
 			finalString += '\n' + "¡¾ÔÚ[uid]" + authorName + "[/uid]µÄ´ó×÷ÖÐÌáµ½¡¿";
 		}
@@ -590,7 +402,7 @@ public class DocParser {
 		String result = content.substring(content.indexOf("·¢ÐÅÕ¾: ÄÏ¾©´óÑ§Ð¡°ÙºÏÕ¾ ("));
 		result = result.substring(result.indexOf(")") + 3);
 		result = result.lastIndexOf("--") > 0 ? result.substring(0,result.indexOf("--")) : result;
-		Matcher matcher = Pattern.compile(Constants.reg, Pattern.CASE_INSENSITIVE).matcher(result.toString());
+		Matcher matcher = Pattern.compile(Constants.REG_URL, Pattern.CASE_INSENSITIVE).matcher(result.toString());
 		StringBuffer newBuffer = new StringBuffer();
 		while (matcher.find()) {
 			String originalValue = matcher.group().trim();
@@ -643,6 +455,8 @@ public class DocParser {
 		}
 		result = result.replace("[uid]", "<uid>");
 		result = result.replace("[/uid]", "<uid>");
+		result = result.replace("[brd]", "<brd>");
+		result = result.replace("[/brd]", "<brd>");
 		result = result.replaceAll("\\[(1;.*?|37;1|32|33)m", "");
 		result = result.replaceAll("\n", "<br/>");
 		return result;

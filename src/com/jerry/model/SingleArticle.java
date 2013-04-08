@@ -1,21 +1,33 @@
 package com.jerry.model;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 
 import android.content.Context;
 
 import com.jerry.utils.Constants;
+import com.jerry.utils.DocParser;
 
 public class SingleArticle {
 	private String content;
+	private String orginalContent;
 	private String authorName;
 	private String replyUrl;
 	private long time;
@@ -23,22 +35,27 @@ public class SingleArticle {
 	public String getContent() {
 		return content;
 	}
-	public void setContent(String content) {
-		this.content = content;
+	
+	public String getOriginalContent() {
+		return orginalContent;
 	}
+	
 	public String getAuthorName() {
 		return authorName;
 	}
+	
 	public void setAuthorName(String authorName) {
 		this.authorName = authorName;
 	}
+	
 	public String getReplyUrl() {
 		return replyUrl;
 	}
+	
 	public void setReplyUrl(String replyUrl) {
 		this.replyUrl = replyUrl;
 	}
-
+	
 	public void setTime(long time) {
 		this.time = time;
 	}
@@ -51,6 +68,10 @@ public class SingleArticle {
 		}
 	}
 
+	public final String getOriginalTimeString() {
+		return Constants.DATE_FORMAT.format(new Date(time));
+	}
+	
 	public final String getAuthorUrl() {
 		return "http://bbs.nju.edu.cn/bbsqry?userid=" + authorName;
 	}
@@ -59,26 +80,25 @@ public class SingleArticle {
 		content = toBeFormatedContent.substring(toBeFormatedContent.indexOf("发信站: 南京大学小百合站 ("));
 		formatTime(content.substring(content.indexOf("(") + 1, content.indexOf(")")));
 		content = content.substring(content.indexOf(")") + 3);
-		content = content.lastIndexOf("--") > 0 ? content.substring(0,content.indexOf("--")) : content;
-		content = SingleArticle.parseTags(content);
+		orginalContent = content.lastIndexOf("--") > 0 ? content.substring(0,content.indexOf("--")) : content;
+		content = SingleArticle.parseTags(orginalContent);
 	}
 
 	private static boolean isBlank(char c) {
 		return c == '\n' || c == '\r' || c == ' ';
 	}
-	
+
 	public static final String parseTags(String sourceString) {
-		Matcher matcher = Pattern.compile(Constants.reg, Pattern.CASE_INSENSITIVE).matcher(sourceString);
+		Matcher matcher = Pattern.compile(Constants.REG_URL, Pattern.CASE_INSENSITIVE).matcher(sourceString);
 		StringBuffer newBuffer = new StringBuffer();
 		while (matcher.find()) {
-			String originalValue = matcher.group().trim();
-			String value = originalValue.toLowerCase();
-			if(value.endsWith("jpg") || value.endsWith("gif") || value.endsWith("png") || value.endsWith("jpeg")) {
-				matcher.appendReplacement(newBuffer, "<pic>" +  originalValue + "<pic>");
-			} else if(value.endsWith("[/wma]")){
-				matcher.appendReplacement(newBuffer, originalValue);
+			String value = matcher.group().trim();
+			if(value.endsWith("[/wma]")){
+				matcher.appendReplacement(newBuffer, value);
+			} else if(Pattern.compile(Constants.REG_PIC, Pattern.CASE_INSENSITIVE).matcher(value).find()) {
+				matcher.appendReplacement(newBuffer, "<pic>" +  value + "<pic>");
 			} else {
-				matcher.appendReplacement(newBuffer, "<url>" + originalValue + "<url>");
+				matcher.appendReplacement(newBuffer, "<url>" + value + "<url>");
 			}
 		}
 		matcher.appendTail(newBuffer);
@@ -123,6 +143,8 @@ public class SingleArticle {
 		}
 		result = result.replace("[uid]", "<uid>");
 		result = result.replace("[/uid]", "<uid>");
+		result = result.replace("[brd]", "<brd>");
+		result = result.replace("[/brd]", "<brd>");
 		if(result.contains("[/wma]")) {
 			result = result.replace("[wma]", "<wma>");
 			result = result.replace("[/wma]", "<wma>");
@@ -178,7 +200,7 @@ public class SingleArticle {
 			return String.valueOf((int)(derta / 31104000000L)) + "年前";
 		}
 	}
-	
+
 	public final boolean deleteArticle(Context context) throws IOException {
 		LoginInfo loginInfo = LoginInfo.getInstance(context);
 		String tmp = replyUrl.replace("/bbspst", "/bbsdel");
@@ -191,5 +213,71 @@ public class SingleArticle {
 			return true;
 		}
 		return false;
+	}
+	
+	public static final boolean modifyArticle(Context context, String board, String fileNode, String content) throws IOException{
+		LoginInfo loginInfo = LoginInfo.getInstance(context);
+		String action = "http://bbs.nju.edu.cn/" + loginInfo.getLoginCode() + "/bbsedit";
+		HttpPost httpRequest = new HttpPost(action);
+		ArrayList<NameValuePair> postData = new ArrayList<NameValuePair>();
+		postData.add(new BasicNameValuePair("type", "1"));
+		postData.add(new BasicNameValuePair("board", board));
+		postData.add(new BasicNameValuePair("file", fileNode));
+		postData.add(new BasicNameValuePair("text", content));
+		httpRequest.addHeader("Cookie", loginInfo.getLoginCookie());
+		httpRequest.setEntity(new UrlEncodedFormEntity(postData, "GB2312"));
+		HttpResponse httpResponse = new DefaultHttpClient().execute(httpRequest);
+		if (httpResponse.getStatusLine().getStatusCode() == 200) {
+			return true;
+		}
+		return false;
+	}
+
+	public static final boolean sendReply(String boardName,String title, String pidString,String reIdString,String replyContent, String authorName, Context context) throws IOException {
+		LoginInfo loginInfo = LoginInfo.getInstance(context);
+		String newurlString = "http://bbs.nju.edu.cn/" + loginInfo.getLoginCode() + "/bbssnd?board=" + boardName;
+		HttpPost httpRequest = new HttpPost(newurlString);
+		ArrayList<NameValuePair> postData = new ArrayList<NameValuePair>();
+		postData.add(new BasicNameValuePair("title", title));
+		postData.add(new BasicNameValuePair("pid", pidString));
+		postData.add(new BasicNameValuePair("reid", reIdString));
+		postData.add(new BasicNameValuePair("signature", "1"));
+		postData.add(new BasicNameValuePair("autocr", "on"));
+		postData.add(new BasicNameValuePair("text", DocParser.formatString(replyContent, authorName, context)));
+		httpRequest.addHeader("Cookie", loginInfo.getLoginCookie());
+		httpRequest.setEntity(new UrlEncodedFormEntity(postData, "GB2312"));
+		HttpResponse httpResponse = new DefaultHttpClient().execute(httpRequest);
+		if (httpResponse.getStatusLine().getStatusCode() == 200) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static final String getPid(String replyUrl, Context context) throws IOException {
+		LoginInfo loginInfo = LoginInfo.getInstance(context);
+		String tempString = "http://bbs.nju.edu.cn/" + loginInfo.getLoginCode() + replyUrl.substring(replyUrl.indexOf("/bbspst"));
+		URL mUrl;
+		mUrl = new URL(tempString);
+		HttpURLConnection conn;
+		conn = (HttpURLConnection) mUrl.openConnection();
+		conn.setRequestProperty("Cookie", loginInfo.getLoginCookie());
+		conn.setRequestMethod("GET");
+		conn.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
+		conn.connect();
+		InputStream in = conn.getInputStream(); 
+		BufferedReader reader1 = new BufferedReader(new InputStreamReader(in,"gb2312")); 
+		String inputLine = null;
+		while ((inputLine = reader1.readLine()) != null) {  
+			if ( inputLine.contains("name=pid") ) {
+				String temp = inputLine.substring(inputLine.indexOf("name=pid"));
+				if (temp.indexOf("value='")!=-1 && temp.indexOf("'>")!=-1) {
+					reader1.close();
+					in.close();
+					return temp.substring(temp.indexOf("value='") + 7,temp.indexOf("'>"));
+				}
+			}
+		}
+		return null;
 	}
 }

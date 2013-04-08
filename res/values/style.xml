@@ -115,7 +115,7 @@
     </style>
 
     <style name="windowAnimation" parent="android:Animation">
-        <item name="@android:windowEnterAnimation">@anim/fade_in</item>
+        <item name="@android:windowEnterAnimation">@anim/zoom_in</item>
     </style>
 
     <style name="switcher">

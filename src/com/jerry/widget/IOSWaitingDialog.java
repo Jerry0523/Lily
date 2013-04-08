@@ -14,7 +14,6 @@ public class IOSWaitingDialog extends Dialog {
 
 	public IOSWaitingDialog(Context context, int theme) {
 		super(context, theme);
-		getWindow().setWindowAnimations(R.style.windowAnimation);
 	}
 
 	public static IOSWaitingDialog createDialog(Context context){

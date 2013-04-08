@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/menu_body"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="fill_parent"
     android:layout_gravity="bottom"
-    android:background="@drawable/alert_background"
-    android:padding="10dip" >
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/menutop"
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1.0"
+        android:background="@null" />
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:gravity="bottom"
+        android:background="@drawable/alert_background"
         android:orientation="vertical"
-        android:padding="10dip" >
+        android:padding="25dip" >
 
         <Button
             android:id="@+id/share"
@@ -21,7 +25,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/alert_button"
             android:text="分享"
-            android:textSize="18dip" />
+            android:textSize="18sp" />
 
         <Button
             android:id="@+id/browser"
@@ -30,7 +34,7 @@
             android:layout_marginTop="10dip"
             android:background="@drawable/alert_button"
             android:text="用浏览器打开"
-            android:textSize="18dip" />
+            android:textSize="18sp"/>
 
         <Button
             android:id="@+id/post_article"
@@ -39,7 +43,7 @@
             android:layout_marginTop="10dip"
             android:background="@drawable/alert_button"
             android:text="@string/post"
-            android:textSize="18dip" />
+            android:textSize="18sp" />
 
         <Button
             android:id="@+id/add2_fav"
@@ -48,16 +52,17 @@
             android:layout_marginTop="10dip"
             android:background="@drawable/alert_button"
             android:text="@string/collect"
-            android:textSize="18dip" />
+            android:textSize="18sp"/>
 
         <Button
             android:id="@+id/mm_back"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dip"
-            android:background="@drawable/alert_button"
-            android:text="返回"
-            android:textSize="18dip" />
+            android:layout_marginTop="20dip"
+            android:background="@drawable/alert_cancel_button"
+            android:text="取消"
+            android:textColor="@android:color/background_light"
+            android:textSize="18sp"/>
     </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>

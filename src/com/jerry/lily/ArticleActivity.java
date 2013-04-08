@@ -4,9 +4,7 @@ package com.jerry.lily;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import android.annotation.SuppressLint;
 import android.app.ListActivity;
@@ -16,19 +14,13 @@ import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jerry.model.Article;
@@ -38,6 +30,7 @@ import com.jerry.utils.Constants;
 import com.jerry.utils.DatabaseDealer;
 import com.jerry.utils.DocParser;
 import com.jerry.utils.PicDownloader;
+import com.jerry.widget.ArticleAdapter;
 import com.jerry.widget.IOSAlertDialog;
 import com.jerry.widget.IOSWaitingDialog;
 import com.jerry.widget.MarqueeTextView;
@@ -54,8 +47,6 @@ public class ArticleActivity extends ListActivity implements IXListViewListener,
 	private int currentPage = 0;
 
 	private PageBackController controller;
-
-	private List<Map<String, Object>> contentList;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -74,53 +65,50 @@ public class ArticleActivity extends ListActivity implements IXListViewListener,
 	}
 
 	public void refreshPic() {
-		mHandler.sendEmptyMessage(19);
+		mHandler.sendEmptyMessage(2);
 	}
 
 	@Override
 	public void onLowMemory() {
-		PicDownloader.clearMemoryPicCache();
+		PicDownloader.getInstance().clearMemoryPicCache();
 		super.onLowMemory();
 	}
 
 	private Handler mHandler = new Handler(){ 
 		@Override
 		public void handleMessage(Message msg) {
-			if (waitingDialog != null) {
-				waitingDialog.cancel();
-			}
 			switch (msg.what) {
-			case 11:
+			case 0:
 				if(article == null || !article.isArticleListNotEmpty()) {
 					return;
 				}
 				if(article.isNeedPullLoadMore()) {
 					getListView().setFooterViewForbidden(false);
-					onLoad();
 				} else{
 					getListView().setFooterViewForbidden(true);
 				}
 				if(getListAdapter() == null) {
-					int layoutId = DatabaseDealer.getSettings(ArticleActivity.this).isNight() ? R.layout.list_single_article_night : R.layout.list_single_article;
-					setListAdapter(new MyListAdapter(layoutId));
+					setListAdapter(getArticleAdapter());
 				} else {
 					((BaseAdapter) getListAdapter()).notifyDataSetChanged();
 				}
 				break;
-			case 17:
+			case 1:
 				Toast.makeText(getApplicationContext(), "网络异常，请稍后重试!", Toast.LENGTH_SHORT).show();
-				overridePendingTransition(R.anim.in_from_up,R.anim.out_to_down);
 				break;
-			case 19:
+			case 2:
 				if(getListAdapter() == null) {
 					return;
 				}
 				((BaseAdapter) getListAdapter()).notifyDataSetChanged();
-				onLoad();
 				break;
-			case 20:
+			case 3:
 				onRefresh();
 				break;
+			}
+			onLoad();
+			if (waitingDialog != null) {
+				waitingDialog.dismiss();
 			}
 		}
 	};
@@ -180,21 +168,8 @@ public class ArticleActivity extends ListActivity implements IXListViewListener,
 		more.setOnClickListener(this);
 		getListView().setXListViewListener(ArticleActivity.this);
 		userName = DatabaseDealer.query(this).getString("username");
-	}
 
-	private List<Map<String, Object>> getData() throws IOException {
-		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-		article = new Article(this.getIntent().getStringExtra("contentUrl"), DatabaseDealer.getBlockList(ArticleActivity.this));
-		for(int i = 0, size = article.getCurrentArticleCount(); i < size; i ++) {
-			SingleArticle singleArticle = article.getSingleArticle(i);
-			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("realAuthor", singleArticle.getAuthorName());
-			map.put("author",getAuthor(singleArticle) + "发表于" + singleArticle.getDetailTime());
-			map.put("floor", getFloorValue(article.getSingleArticleIndex(singleArticle)));
-			map.put("content", singleArticle.getContent());
-			list.add(map);
-		}
-		return list;
+		waitingDialog = IOSWaitingDialog.createDialog(this);
 	}
 
 	@Override
@@ -238,38 +213,33 @@ public class ArticleActivity extends ListActivity implements IXListViewListener,
 		}
 		controller.onDestroy();
 		TagDealer.getInstance(null);
-		PicDownloader.stopDownloadThread();
+		PicDownloader.getInstance().stopDownloadThread();
 		super.onDestroy();
 	}
 
 	private void initList() {
-		if(waitingDialog == null) {
-			waitingDialog = IOSWaitingDialog.createDialog(this);
-		}
 		if(getListAdapter() == null) {
 			waitingDialog.show();
 		}
 		Thread gettingData = new Thread(new Runnable() {
 			@Override
 			public void run() {
+				int result = 0;
 				try {
-					contentList = getData();
+					if(article == null) {
+						article = new Article(ArticleActivity.this.getIntent().getStringExtra("contentUrl"), ArticleActivity.this);
+					} else {
+						currentPage = 0;
+						article.refresh(ArticleActivity.this.getIntent().getStringExtra("contentUrl"), ArticleActivity.this);
+					}
 				} catch (IOException e) {
-					mHandler.sendEmptyMessage(17);
+					result = 1;
+				} finally {
+					mHandler.sendEmptyMessage(result);
 				}
-				mHandler.sendEmptyMessage(11);
 			}
 		});
 		gettingData.start();
-	}
-
-	public static final class ViewHolder{
-		public TextView author;
-		public TextView content;
-		public TextView reply;
-		public RelativeLayout toolbar;
-		public ImageButton edit;
-		public ImageButton delete;
 	}
 
 	@Override
@@ -277,204 +247,29 @@ public class ArticleActivity extends ListActivity implements IXListViewListener,
 		return (BaseAdapter) super.getListAdapter();
 	}
 
-	private class MyListAdapter extends BaseAdapter {
-		private int layoutID;
-		private LayoutInflater  mInflater;
-		private int fontSize;
 
-		public MyListAdapter(int layoutID) {
-			this.layoutID = layoutID;
-			this.mInflater = ArticleActivity.this.getLayoutInflater();
-			this.fontSize = DatabaseDealer.getSettings(ArticleActivity.this).getFontSize();
-		}
-
-		@Override
-		public int getCount() {
-			return contentList.size();
-		}
-
-		@Override
-		public Object getItem(int position) {
-			return contentList.get(position);
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-
-		@Override
-		public View getView(final int position, View convertView, ViewGroup parent) {
-			final ViewHolder holder;
-			if(convertView == null) {
-				convertView = mInflater.inflate(layoutID, null);
-				holder = new ViewHolder();
-				holder.author = (TextView) convertView.findViewById(R.id.sa_author);
-				holder.content = (TextView) convertView.findViewById(R.id.sa_content);
-				holder.reply = (TextView) convertView.findViewById(R.id.sa_reply);
-
-				holder.toolbar = (RelativeLayout) convertView.findViewById(R.id.sa_toolbar);
-				holder.delete = (ImageButton) convertView.findViewById(R.id.sa_delete);
-				holder.edit = (ImageButton) convertView.findViewById(R.id.sa_edit);
-
-				holder.content.setMovementMethod(LinkMovementMethod.getInstance());
-				convertView.setTag(holder);
-			} else {
-				holder = (ViewHolder) convertView.getTag();
-			}
-			Map<String, Object> map = contentList.get(position);
-			holder.author.setText((String) map.get("author"));
-			holder.reply.setText(getResources().getString(R.string.reply_article) +  map.get("floor"));
-			String articleContent = (String) map.get("content");
-			holder.content.setText(Html.fromHtml(articleContent, null, TagDealer.getInstance(ArticleActivity.this)));
-			holder.content.setTextSize(fontSize);
-
-			if(userName.equals(map.get("realAuthor"))) {
-				holder.toolbar.setVisibility(View.VISIBLE);
-				holder.delete.setOnClickListener(new OnClickListener() {
-
-					@Override
-					public void onClick(View v) {
-						DialogInterface.OnClickListener lis = new DialogInterface.OnClickListener() {
-
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								Thread thread = new Thread(new Runnable() {
-
-									@Override
-									public void run() {
-										Message msg = Message.obtain();
-										try {
-											boolean success = article.getSingleArticle(position).deleteArticle(ArticleActivity.this);
-											if(success) {
-												msg.what = 20;
-											} else {
-												msg.what = 17;
-											}
-										} catch (IOException e) {
-											msg.what = 17;
-										} finally {
-											mHandler.sendMessage(msg);
-										}
-
-									}
-								});
-								thread.start();
-								dialog.dismiss();
-								waitingDialog.show();
-							}
-
-						};
-						new IOSAlertDialog.Builder(ArticleActivity.this).setTitle("注意").setMessage("确认删除本篇文章?").setPositiveButton("好", lis).setNegativeButtonText("取消").create().show();
-
-					}
-				});
-
-				holder.edit.setOnClickListener(new OnClickListener() {
-
-					@Override
-					public void onClick(View v) {
-						// TODO Auto-generated method stub
-
-					}
-				});
-			} else {
-				holder.toolbar.setVisibility(View.GONE);
-			}
-
-			holder.reply.setOnClickListener(new OnClickListener() {
-
-				@Override
-				public void onClick(View v) {
-					if(article.getSingleArticle(position).getReplyUrl() == null) {
-						Toast.makeText(getApplicationContext(), "该帖无法回复!", Toast.LENGTH_SHORT).show();
-						return;
-					}
-					Intent intent = new Intent(ArticleActivity.this, ReplyArticle.class);
-					intent.putExtra("isTitleVisiable", false);
-					intent.putExtra("board", getIntent().getStringExtra("board"));
-					intent.putExtra("replyUrl", article.getSingleArticle(position).getReplyUrl());
-					intent.putExtra("authorName", article.getSingleArticle(position).getAuthorName());
-					intent.putExtra("contentUrl", getIntent().getStringExtra("contentUrl"));
-					intent.putExtra("title", getIntent().getStringExtra("title"));
-					startActivityForResult(intent, 1);
-					overridePendingTransition(R.anim.slide_right_in, R.anim.slide_left_out);
-				}
-			});
-
-			holder.author.setOnClickListener(new OnClickListener() {
-
-				@Override
-				public void onClick(View v) {
-					if(article.getSingleArticle(position).getAuthorName().equals("deliver")) {
-						Toast.makeText(getApplicationContext(), "系统管理员，无信息!", Toast.LENGTH_SHORT).show();
-						return;
-					}
-					Intent intent = new Intent(ArticleActivity.this, Author.class);
-					intent.putExtra("authorUrl", article.getSingleArticle(position).getAuthorUrl());
-					intent.putExtra("authorName", article.getSingleArticle(position).getAuthorName());
-					startActivity(intent);
-					overridePendingTransition(R.anim.slide_right_in, R.anim.slide_left_out);
-				}
-			});
-			return convertView;
-		}
-
-	}
 
 	private void addList() {
-		currentPage += 30;
 		Thread gettingData = new Thread(new Runnable() {
 			@Override
 			public void run() {
+				int result = 0;
 				try {
-					addData();
+					currentPage += 30;
+					String pageString = "";
+					if (currentPage > 0) {
+						pageString = "&start=" + String.valueOf(currentPage);
+					}
+					article.addSingleArticles(ArticleActivity.this.getIntent().getStringExtra("contentUrl") + pageString, ArticleActivity.this);
 				} catch (IOException e) {
-					mHandler.sendEmptyMessage(17);
+					currentPage -= 30;
+					result = 1;
+				} finally {
+					mHandler.sendEmptyMessage(result);
 				}
-				mHandler.sendEmptyMessage(11);
 			}
 		});
 		gettingData.start();
-	}
-
-	private void addData() throws IOException {
-		String pageString = "";
-		if (currentPage > 0) {
-			pageString = "&start=" + String.valueOf(currentPage);
-		}
-		int currentSize = article.getCurrentArticleCount();
-		article.addSingleArticles(this.getIntent().getStringExtra("contentUrl") + pageString, DatabaseDealer.getBlockList(ArticleActivity.this));
-		for(int i = currentSize, size = article.getCurrentArticleCount(); i < size; i ++) {
-			SingleArticle singleArticle = article.getSingleArticle(i);
-			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("realAuthor", singleArticle.getAuthorName());
-			map.put("author",getAuthor(singleArticle) + "发表于" + singleArticle.getDetailTime());
-			map.put("floor", getFloorValue(article.getSingleArticleIndex(singleArticle)));
-			map.put("content", singleArticle.getContent());
-			contentList.add(map);
-		}
-	}
-
-	private String getAuthor(SingleArticle singleArticle) {
-		if(singleArticle.getAuthorName().equals(article.getArticleAuthorName())) {
-			return singleArticle.getAuthorName() + "(楼主)";
-		} else {
-			return singleArticle.getAuthorName();
-		}
-	}
-
-	private String getFloorValue(int index) {
-		if(index == 0) {
-			return "楼主";
-		} else if(index == 1) {
-			return "沙发";
-		} else if(index == 2) {
-			return "板凳";
-		} else {
-			return index + "楼";
-		}
 	}
 
 	@Override
@@ -501,11 +296,87 @@ public class ArticleActivity extends ListActivity implements IXListViewListener,
 	@Override
 	public void onRefresh() {
 		initList();
-		onLoad();
 	}
 
 	@Override
 	public void onPageBack() {
 		onBackPressed();
+	}
+
+	private ArticleAdapter getArticleAdapter() {
+		int layoutId = DatabaseDealer.getSettings(ArticleActivity.this).isNight() ? R.layout.list_single_article_night : R.layout.list_single_article;
+		return new ArticleAdapter(layoutId, ArticleActivity.this, article, userName) {
+
+			@Override
+			public void onReplyArticle(String replyUrl, String authorName) {
+				Intent intent = new Intent(ArticleActivity.this, ReplyArticle.class);
+				intent.putExtra("isTitleVisiable", false);
+				intent.putExtra("board", getIntent().getStringExtra("board"));
+				intent.putExtra("replyUrl", replyUrl);
+				intent.putExtra("authorName", authorName);
+				intent.putExtra("contentUrl", getIntent().getStringExtra("contentUrl"));
+				intent.putExtra("title", getIntent().getStringExtra("title"));
+				startActivityForResult(intent, 1);
+				overridePendingTransition(R.anim.slide_right_in, R.anim.slide_left_out);
+			}
+
+			@Override
+			public void onModifyArticle(SingleArticle sa) {
+				Intent intent = new Intent(ArticleActivity.this, ReplyArticle.class);
+				intent.putExtra("isTitleVisiable", false);
+				intent.putExtra("isModify", true);
+				intent.putExtra("authorName", sa.getAuthorName());
+				intent.putExtra("time", sa.getOriginalTimeString());
+				intent.putExtra("content", sa.getOriginalContent());
+				intent.putExtra("board", getIntent().getStringExtra("board"));
+				intent.putExtra("replyUrl", sa.getReplyUrl());
+				intent.putExtra("title", getIntent().getStringExtra("title"));
+				startActivityForResult(intent, 1);
+				overridePendingTransition(R.anim.slide_right_in, R.anim.slide_left_out);
+			}
+
+			@Override
+			public void onDeleteArticle(final SingleArticle sa) {
+				DialogInterface.OnClickListener lis = new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog,
+							int which) {
+						Thread thread = new Thread(new Runnable() {
+
+							@Override
+							public void run() {
+								int result = 3;
+								try {
+									boolean success = sa.deleteArticle(ArticleActivity.this);
+									if(!success) {
+										result = 1;
+									}
+								} catch (IOException e) {
+									result = 1;
+								} finally {
+									mHandler.sendEmptyMessage(result);
+								}
+
+							}
+						});
+						thread.start();
+						dialog.dismiss();
+						waitingDialog.show();
+					}
+
+				};
+				new IOSAlertDialog.Builder(ArticleActivity.this).setTitle("注意").setMessage("确认删除本篇文章?").setPositiveButton("好", lis).setNegativeButtonText("取消").create().show();
+
+			}
+
+			@Override
+			public void onClickAuthor(String authorName) {
+				Intent intent = new Intent(ArticleActivity.this, Author.class);
+				intent.putExtra("authorName", authorName);
+				startActivity(intent);
+				overridePendingTransition(R.anim.slide_right_in, R.anim.slide_left_out);
+			}
+		};
 	}
 }

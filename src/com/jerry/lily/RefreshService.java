@@ -8,7 +8,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
-import com.jerry.utils.DocParser;
+import com.jerry.model.LoginInfo;
 import com.jerry.utils.ShutDown;
 
 public class RefreshService extends Service{
@@ -41,7 +41,7 @@ public class RefreshService extends Service{
 		task = new TimerTask(){  
 			public void run() {
 				try {
-					DocParser.keepConnected(RefreshService.this);
+					LoginInfo.keepConnected(RefreshService.this);
 				} catch (IOException e) {
 					stopSelf();
 				}

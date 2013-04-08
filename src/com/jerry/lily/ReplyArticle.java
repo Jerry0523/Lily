@@ -3,6 +3,8 @@ package com.jerry.lily;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -31,6 +33,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jerry.model.LoginInfo;
+import com.jerry.model.SingleArticle;
 import com.jerry.utils.Constants;
 import com.jerry.utils.DatabaseDealer;
 import com.jerry.utils.DocParser;
@@ -41,13 +45,11 @@ import com.jerry.widget.IOSWaitingDialog;
 public class ReplyArticle extends Activity implements OnClickListener{
 	private EditText title;
 	private EditText content;
+	private EditText atInput;
 
 	private boolean isTitleVisiable;
 
 	private GridView gridView;
-
-	private int[] emotionId = getEmotionIdArray();
-	private String[] emotionString = getEmotionStringArray();
 
 	private File tmpPhoto;
 
@@ -72,22 +74,22 @@ public class ReplyArticle extends Activity implements OnClickListener{
 			}
 			switch (msg.what) {
 			case 0:
-				android.content.DialogInterface.OnClickListener success = new android.content.DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-						setResult(Constants.SEND_REPLY);
-						onBackPressed();
-					}
-				};
-				new IOSAlertDialog.Builder(ReplyArticle.this).setTitle("提示").setMessage("发送成功").setNegativeButton("好", success).create().show();
+				Toast.makeText(ReplyArticle.this, "发送成功", Toast.LENGTH_LONG).show();
+				setResult(Constants.SEND_REPLY);
+				onBackPressed();
 				break;
 			case 1:
 				if(positiveLis == null) {
 					positiveLis = new android.content.DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-							sendArticle();
+							try {
+								LoginInfo.resetLoginInfo(ReplyArticle.this);
+							} catch (IOException e) {
+								mHandler.sendEmptyMessage(1);
+								return;
+							}
+							submit();
 							dialog.dismiss();
 						}
 					};
@@ -112,7 +114,7 @@ public class ReplyArticle extends Activity implements OnClickListener{
 				} else {
 					content.append('\n' + picUrl + '\n');
 				}
-				
+
 				break;
 			case 3:
 				new IOSAlertDialog.Builder(ReplyArticle.this).setTitle("警告").setMessage("图片上传失败").setNegativeButtonText("好").create().show();
@@ -138,7 +140,6 @@ public class ReplyArticle extends Activity implements OnClickListener{
 			int actual_image_column_index = actualimagecursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);  
 			actualimagecursor.moveToFirst();  
 			String imgPath= actualimagecursor.getString(actual_image_column_index); 
-			actualimagecursor.close();
 			uploadPicture(imgPath);
 			break;
 		case Constants.CAMERA:
@@ -153,9 +154,11 @@ public class ReplyArticle extends Activity implements OnClickListener{
 	private void initComponents() {
 		content = (EditText)findViewById(R.id.reply_edit);
 		title = (EditText) findViewById(R.id.reply_title);
+		atInput = (EditText) findViewById(R.id.reply_at_input);
 
 		content.setOnClickListener(this);
 		title.setOnClickListener(this);
+		atInput.setOnClickListener(this);
 
 		((Button)findViewById(R.id.reply_submit)).setOnClickListener(this);
 		((Button)findViewById(R.id.reply_quit)).setOnClickListener(this);
@@ -164,6 +167,8 @@ public class ReplyArticle extends Activity implements OnClickListener{
 		((ImageButton)findViewById(R.id.reply_pic)).setOnClickListener(this);
 		((ImageButton)findViewById(R.id.reply_photo)).setOnClickListener(this);
 		((ImageButton)findViewById(R.id.reply_expression)).setOnClickListener(this);
+		((ImageButton)findViewById(R.id.reply_at)).setOnClickListener(this);
+		((ImageButton)findViewById(R.id.reply_at_add)).setOnClickListener(this);
 		gridView = (GridView)findViewById(R.id.gridview);
 
 		gridView.setAdapter(new EmotionAdapter());
@@ -172,39 +177,21 @@ public class ReplyArticle extends Activity implements OnClickListener{
 		if(!isTitleVisiable) {
 			title.setVisibility(View.GONE);
 		}
-	}
-
-	private int[] getEmotionIdArray() {
-		int[] array = {R.drawable.emotion_0,R.drawable.emotion_1, R.drawable.emotion_2, R.drawable.emotion_3, R.drawable.emotion_4,
-				R.drawable.emotion_5, R.drawable.emotion_6, R.drawable.emotion_7, R.drawable.emotion_8, R.drawable.emotion_9,
-				R.drawable.emotion_a,R.drawable.emotion_b, R.drawable.emotion_c, R.drawable.emotion_d, R.drawable.emotion_e,
-				R.drawable.emotion_f, R.drawable.emotion_g, R.drawable.emotion_h, R.drawable.emotion_i, R.drawable.emotion_j,
-				R.drawable.emotion_k, R.drawable.emotion_l, R.drawable.emotion_m, R.drawable.emotion_n, R.drawable.emotion_o,
-				R.drawable.emotion_p, R.drawable.emotion_q, R.drawable.emotion_r, R.drawable.emotion_s, R.drawable.emotion_t,
-				R.drawable.emotion_u, R.drawable.emotion_v, R.drawable.emotion_w, R.drawable.emotion_x, R.drawable.emotion_y,
-				R.drawable.emotion_z};
-		return array;
-
-	}
-
-	private String[] getEmotionStringArray() {
-		String[] array = {"[:-b]","[:-8]","[;PT]","[:hx]","[;K]","[:E]","[:-(]","[;hx]","[:-v]","[;xx]",
-				"[:@]","[:)]","[:(]","[:$]","[:D]","[:Q]","[:T]","[:-|]","[;P]","[;-D]","[:!]","[:L]",
-				"[:?]","[:U]","[:O]","[:P]","[:'(]","[:K]","[:s]","[:C-]","[;X]","[:|]","[:H]","[:X]",
-				"[;bye]","[;cool]"};
-		return array;
+		if(getIntent().getBooleanExtra("isModify", false)) {
+			content.setText(getIntent().getStringExtra("content"));
+		}
 	}
 
 	private class EmotionAdapter extends BaseAdapter {
 
 		@Override
 		public int getCount() {
-			return emotionId.length;
+			return Constants.EMOTION_DRAWABLE_ID_ARRAY.length;
 		}
 
 		@Override
 		public Object getItem(int position) {
-			return emotionString[position];
+			return Constants.EMOTION_RESOURCE_ARRAY[position];
 		}
 
 		@Override
@@ -215,7 +202,7 @@ public class ReplyArticle extends Activity implements OnClickListener{
 		@Override
 		public View getView(final int position, View convertView, ViewGroup parent) {
 			final TextView img = new TextView(ReplyArticle.this);
-			img.setBackgroundResource(emotionId[position]);
+			img.setBackgroundResource(Constants.EMOTION_DRAWABLE_ID_ARRAY[position]);
 			img.setOnTouchListener(new OnTouchListener() {
 
 				@Override
@@ -245,21 +232,22 @@ public class ReplyArticle extends Activity implements OnClickListener{
 
 			@Override
 			public void run() {
+				Message msg  = Message.obtain();
 				try {
-					Message msg  = Message.obtain();
-					msg.what = 2;
 					msg.obj = DocParser.upLoadPic2Server(picPath, getIntent().getStringExtra("board"), ReplyArticle.this);
-					mHandler.sendMessage(msg);
+					msg.what = 2;
 				} catch (IOException e) {
-					mHandler.sendEmptyMessage(3);
-				}			
+					msg.what = 3;
+				} finally {
+					mHandler.sendMessage(msg);
+				}
 			}
 		});
 
 		uploadPic.start();
 	}
 
-	private void sendArticle() {
+	private void submit() {
 		if(waitingDialog == null) {
 			waitingDialog = IOSWaitingDialog.createDialog(this);
 		}
@@ -267,29 +255,66 @@ public class ReplyArticle extends Activity implements OnClickListener{
 		Thread sendReply = new Thread(new Runnable() {
 			@Override
 			public void run() {
+				int result = 0;
 				try {
-					boolean success = isTitleVisiable ? postNewArticle() : sendReply();
-					if(!isTitleVisiable && DatabaseDealer.getSettings(ReplyArticle.this).isSendMail()) {
-						String authorName = getIntent().getStringExtra("authorName");
-						String boardName = getIntent().getStringExtra("board");
-						String content = "我在[" + boardName + "]版回复了您的帖子《" + getIntent().getStringExtra("title") + "》" + '\n' 
-								+ "帖子链接为   " + getIntent().getStringExtra("contentUrl") + '\n' 
-								+ "我的回复是:" + ReplyArticle.this.content.getText().toString() + '\n' + '\n' + "以上由小百合Android客户端自动发出，欢迎试用！~";
-						DocParser.sendMail(authorName, content, ReplyArticle.this);
-
+					boolean success = true;
+					if(getIntent().getBooleanExtra("isModify", false)) {
+						success = modifyArticle();
+					} else {
+						success = isTitleVisiable ? postNewArticle() : sendReply();
+						submitNotification();
 					}
-					mHandler.sendEmptyMessage(success ? 0 : 1);
+					result = success ? 0 : 1;
 				} catch (IOException e1) {
-					mHandler.sendEmptyMessage(1);
+					result = 1;
+				} finally {
+					mHandler.sendEmptyMessage(result);
 				}
 			}
 		});
 		sendReply.start();
 	}
 
+	private boolean modifyArticle() throws IOException{
+		Intent intent = getIntent();
+		String boardName = intent.getStringExtra("board");
+		String replyUrl = intent.getStringExtra("replyUrl");
+		String author = intent.getStringExtra("authorName");
+		String title = intent.getStringExtra("title");
+		String time = intent.getStringExtra("time");
+		String fileNode = replyUrl.substring(replyUrl.indexOf("&file=") + 6);
+		String modifyContent = "发信人: " + author + ", 信区:" + boardName + "\t\n标  题: "
+				+ title + "\t\n发信站: 南京大学小百合站 (" + time + ")\t\n\t\n" + DocParser.formatSingleLine(content.getText().toString());
+		return SingleArticle.modifyArticle(this, boardName, fileNode, modifyContent);
+	}
+
+	private void submitNotification() throws IOException{
+		String contentString = content.getText().toString();
+		Matcher matcher = Pattern.compile(Constants.REG_AT, Pattern.CASE_INSENSITIVE).matcher(contentString);
+		while (matcher.find()) {
+			String authorName = matcher.group().trim();
+			if(authorName.startsWith("@")) {
+				authorName = authorName.substring(1);
+			}
+			authorName = authorName.replace("[uid]", "");
+			authorName = authorName.replace("[/uid]", "");
+			String content = "我在" + getIntent().getStringExtra("board") + "版@了你" + '\n' + "url为:" + getIntent().getStringExtra("contentUrl");
+			DocParser.sendMail(authorName, content, ReplyArticle.this);
+		}
+		if(!isTitleVisiable && DatabaseDealer.getSettings(ReplyArticle.this).isSendMail()) {
+			String authorName = getIntent().getStringExtra("authorName");
+			String boardName = getIntent().getStringExtra("board");
+			String content = "我在[" + boardName + "]版回复了您的帖子《" + getIntent().getStringExtra("title") + "》" + '\n' 
+					+ "帖子链接为   " + getIntent().getStringExtra("contentUrl") + '\n' 
+					+ "我的回复是:" + ReplyArticle.this.content.getText().toString() + '\n' + '\n' + "以上由小百合Android客户端自动发出，欢迎试用！~";
+			DocParser.sendMail(authorName, content, ReplyArticle.this);
+
+		}
+	}
+
 	private boolean postNewArticle() throws IOException {
 		String boardName = getIntent().getStringExtra("board");
-		return DocParser.sendReply(boardName, title.getText().toString(), "0", "0", content.getText().toString(), null, ReplyArticle.this);
+		return SingleArticle.sendReply(boardName, title.getText().toString(), "0", "0", content.getText().toString(), null, ReplyArticle.this);
 	}
 
 	private boolean sendReply() throws IOException {
@@ -297,16 +322,15 @@ public class ReplyArticle extends Activity implements OnClickListener{
 		String replyUrl = getIntent().getStringExtra("replyUrl");
 		String authorName = getIntent().getStringExtra("authorName");
 		String boardName = getIntent().getStringExtra("board");
-		String title = getIntent().getStringExtra("title");
+		String title = "Re: " + getIntent().getStringExtra("title");
 		String reIdString = replyUrl.substring(replyUrl.indexOf("M.") + 2);
 		reIdString = reIdString.substring(0, reIdString.indexOf(".A"));
 
-		String pidString = DocParser.getPid(replyUrl, ReplyArticle.this);
+		String pidString = SingleArticle.getPid(replyUrl, ReplyArticle.this);
 		if (pidString == null) {
 			return false;
 		}
-		title = title.contains("○") ? title.replace("○", "Re:") : ("Re: " + title);
-		return DocParser.sendReply(boardName, title, pidString, reIdString, content.getText().toString(), authorName, ReplyArticle.this);
+		return SingleArticle.sendReply(boardName, title, pidString, reIdString, content.getText().toString(), authorName, ReplyArticle.this);
 	}
 
 
@@ -326,13 +350,11 @@ public class ReplyArticle extends Activity implements OnClickListener{
 				new IOSAlertDialog.Builder(ReplyArticle.this).setTitle("警告").setMessage("标题为空，本次发送取消").setNegativeButtonText("好").create().show();
 				return;
 			}
-			sendArticle();
+			submit();
 			break;
-
 		case R.id.reply_edit:
-			gridView.setVisibility(View.GONE);
-			break;
 		case R.id.reply_title:
+		case R.id.reply_at_input:
 			gridView.setVisibility(View.GONE);
 			break;
 		case R.id.reply_input:
@@ -364,6 +386,19 @@ public class ReplyArticle extends Activity implements OnClickListener{
 				Toast.makeText(ReplyArticle.this, "无法打开相册",Toast.LENGTH_LONG).show();  
 			}  
 			break;
+		case R.id.reply_at:
+			findViewById(R.id.reply_toolbar_region).setVisibility(View.GONE);
+			findViewById(R.id.reply_at_input_region).setVisibility(View.VISIBLE);
+			atInput.requestFocus();
+			break;
+		case R.id.reply_at_add:
+			findViewById(R.id.reply_toolbar_region).setVisibility(View.VISIBLE);
+			findViewById(R.id.reply_at_input_region).setVisibility(View.GONE);
+			if(atInput.getText().length() > 0) {
+				content.append("@[uid]" + atInput.getText().toString().trim() + "[/uid] ");
+			}
+			content.requestFocus();
+			break;
 		}
 	}
 
@@ -372,5 +407,4 @@ public class ReplyArticle extends Activity implements OnClickListener{
 		super.onBackPressed();
 		overridePendingTransition(R.anim.slide_left_in,R.anim.slide_right_out); 
 	}
-
 }

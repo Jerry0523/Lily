@@ -5,29 +5,33 @@ import java.util.List;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 
 import com.jerry.utils.Constants;
 
 public class MenuActivity extends Activity implements OnClickListener{
+	private View top;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.menu);
 		initComponents();
 	}
-	
+
 	@Override
 	public void onBackPressed() {
+		top.setBackgroundResource(R.drawable.transparent);
 		super.onBackPressed();
 		overridePendingTransition(R.anim.keep_origin,R.anim.out_to_down);
 	}
 
 	private void initComponents() {
+		top = findViewById(R.id.menutop);
 		List<Integer> remove = getIntent().getIntegerArrayListExtra("remove");
 
 		Button add2Fav = (Button) findViewById(R.id.add2_fav);
@@ -36,7 +40,7 @@ public class MenuActivity extends Activity implements OnClickListener{
 		Button browser = (Button) findViewById(R.id.browser);
 		Button back = (Button) findViewById(R.id.mm_back);
 
-		((RelativeLayout)findViewById(R.id.menu_body)).setOnClickListener(this);
+		top.setOnClickListener(this);
 		add2Fav.setOnClickListener(this);
 		postNewArticle.setOnClickListener(this);
 		share.setOnClickListener(this);
@@ -55,6 +59,14 @@ public class MenuActivity extends Activity implements OnClickListener{
 		if(remove.contains(Constants.BROWSER)) {
 			browser.setVisibility(View.GONE);
 		}
+		new Handler().postDelayed(new Runnable() {
+
+			@Override
+			public void run() {
+				top.setBackgroundResource(R.drawable.transparent_grey);
+				top.startAnimation(AnimationUtils.loadAnimation(MenuActivity.this, R.anim.fade_in));
+			}
+		}, 300);
 	}
 
 	@Override

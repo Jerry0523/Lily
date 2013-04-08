@@ -56,7 +56,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 	
 	private String [] getSettingArray() {
-		return new String[] {"('sign', '" + Constants.sign + "')",
+		return new String[] {"('sign', '" + Constants.SIGN + "')",
 				"('isLogin', '0')",
 				"('isShowPic', '1')",
 				"('isSendMail', '0')",

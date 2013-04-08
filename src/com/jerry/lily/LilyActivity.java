@@ -16,16 +16,17 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.RadioGroup;
-import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jerry.model.Article;
+import com.jerry.model.ArticleGroup;
 import com.jerry.model.LoginInfo;
 import com.jerry.utils.DatabaseDealer;
 import com.jerry.utils.DocParser;
@@ -39,7 +40,7 @@ import com.jerry.widget.XListView;
 import com.jerry.widget.XListView.IXListViewListener;
 
 @SuppressLint("HandlerLeak")
-public class LilyActivity extends Activity implements OnClickListener,OnPageChangeListener, OnCheckedChangeListener{
+public class LilyActivity extends Activity implements OnClickListener,OnPageChangeListener{
 	private ViewPager viewPager;
 	private List<View> viewList;
 
@@ -56,6 +57,8 @@ public class LilyActivity extends Activity implements OnClickListener,OnPageChan
 	private ImageButton boardEditButton;
 	private ImageButton allBoardButton;
 	private TextView mainTitle;
+
+	private IOSAlertDialog quitDialog;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -83,7 +86,10 @@ public class LilyActivity extends Activity implements OnClickListener,OnPageChan
 		viewPager.setOnPageChangeListener(this);
 
 		tabRadioGroup = (RadioGroup) findViewById(R.id.radio);
-		tabRadioGroup.setOnCheckedChangeListener(this);
+		findViewById(R.id.top).setOnClickListener(this);
+		findViewById(R.id.board).setOnClickListener(this);
+		findViewById(R.id.hot).setOnClickListener(this);
+		findViewById(R.id.center).setOnClickListener(this);
 
 		setButton = ((ImageButton)findViewById(R.id.top_set));
 		boardEditButton = ((ImageButton)findViewById(R.id.board_edit));
@@ -94,8 +100,9 @@ public class LilyActivity extends Activity implements OnClickListener,OnPageChan
 		boardEditButton.setOnClickListener(this);
 		allBoardButton.setOnClickListener(this);
 		mainTitle.setOnClickListener(this);
-		
+
 		afterPageChanged(0);
+		initQuitDialog();
 	}
 
 	private Handler mHandler = new Handler(){ 
@@ -125,7 +132,7 @@ public class LilyActivity extends Activity implements OnClickListener,OnPageChan
 						Message msg = Message.obtain();
 						msg.arg2 = 0;
 						try {
-							List<Article> tmp = DocParser.getTopArticleTitleList(LilyActivity.this);
+							List<Article> tmp = ArticleGroup.getTopArticleTitleList(LilyActivity.this).getArticleList();
 							topList.clear();
 							topList.addAll(tmp);
 							msg.arg1 = 0;
@@ -253,7 +260,7 @@ public class LilyActivity extends Activity implements OnClickListener,OnPageChan
 						Message msg = Message.obtain();
 						msg.arg2 = 2;
 						try {
-							List<Article> tmp = DocParser.getHotArticleTitleList();
+							List<Article> tmp = ArticleGroup.getHotArticleTitleList().getArticleList();
 							hotList.clear();
 							hotList.addAll(tmp);
 							msg.arg1 = 0;
@@ -336,8 +343,35 @@ public class LilyActivity extends Activity implements OnClickListener,OnPageChan
 				listViewArray[viewPager.getCurrentItem()].setSelectionAfterHeaderView();
 			}
 			break;
+		case R.id.top:
+		case R.id.board:
+		case R.id.hot:
+		case R.id.center:
+			onCheckRadioButton(v.getId());
+			break;
 		}
 
+	}
+
+	private void onCheckRadioButton(int buttonId) {
+		tabRadioGroup.check(buttonId);
+		int index = 0;
+		switch (buttonId) {
+		case R.id.top:
+			index = 0;
+			break;
+		case R.id.board:
+			index = 1;
+			break;
+		case R.id.hot:
+			index = 2;
+			break;
+		case R.id.center:
+			index = 3;
+			break;
+		}
+		viewPager.setCurrentItem(index, false);
+		viewList.get(index).startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in));
 	}
 
 	@Override
@@ -351,7 +385,8 @@ public class LilyActivity extends Activity implements OnClickListener,OnPageChan
 	}
 
 	@Override
-	public void onPageSelected(int index) {
+	public void onPageSelected(final int index) {
+		afterPageChanged(index);
 		int id = R.id.top;
 		switch (index) {
 		case 1:
@@ -365,7 +400,6 @@ public class LilyActivity extends Activity implements OnClickListener,OnPageChan
 			break;
 		}
 		tabRadioGroup.check(id);
-		afterPageChanged(index);
 	}
 
 	private void afterPageChanged(int index) {
@@ -392,25 +426,21 @@ public class LilyActivity extends Activity implements OnClickListener,OnPageChan
 		}
 	}
 
-	@Override
-	public void onCheckedChanged(RadioGroup group, int checkedId) {
-		int value = 0;
-		switch (checkedId) {
-		case R.id.board:
-			value = 1;
-			break;
-		case R.id.hot:
-			value = 2;
-			break;
-		case R.id.center:
-			value = 3;
-			break;
-		}
-		viewPager.setCurrentItem(value, Math.abs(viewPager.getCurrentItem() - value) <= 1);
+	private void initQuitDialog() {
+		android.content.DialogInterface.OnClickListener listener = new android.content.DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				ShutDown.shutDownActivity(LilyActivity.this);
+				finish();
+				System.exit(0);
+			}
+		};
+		quitDialog = new IOSAlertDialog.Builder(this).setTitle("提示").setMessage("确定退出应用程序?").setPositiveButton("确定", listener).create();
 	}
-	
+
 	@Override
 	public void onBackPressed() {
-		ShutDown.shutDownActivity(this);
+		quitDialog.show();
 	}
 }  

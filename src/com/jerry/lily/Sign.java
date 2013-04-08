@@ -42,7 +42,7 @@ public class Sign extends Activity{
 		custom = (ToggleButton)findViewById(R.id.sign_custom);
 		sign = DatabaseDealer.getSettings(Sign.this).getSign();
 		
-		if(sign.equals(Constants.sign)) {
+		if(sign.equals(Constants.SIGN)) {
 			preCustom.setChecked(true);
 			custom.setChecked(false);
 			edit.setVisibility(View.INVISIBLE);
@@ -75,7 +75,7 @@ public class Sign extends Activity{
 		submit.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				sign = preCustom.isChecked() ? Constants.sign : edit.getText().toString();
+				sign = preCustom.isChecked() ? Constants.SIGN : edit.getText().toString();
 				DatabaseDealer.updateSettings(Sign.this, "sign", sign);
 				Toast.makeText(getApplicationContext(), "±£´æ³É¹¦", Toast.LENGTH_SHORT).show();
 				onBackPressed();

@@ -25,7 +25,6 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jerry.utils.AnimCommon;
 import com.jerry.utils.DatabaseDealer;
 import com.jerry.utils.DocParser;
 import com.jerry.widget.IOSWaitingDialog;
@@ -60,7 +59,6 @@ public class Mail extends ListActivity implements IXListViewListener, OnClickLis
 		Intent intent = new Intent(Mail.this, MailActivity.class);
 		intent.putExtra("contentUrl", mailList.get(position - 1).getContentUrl());
 		startActivity(intent);
-		AnimCommon.set(R.anim.slide_right_in, R.anim.slide_left_out);
 	}
 
 	private Handler mHandler = new Handler(){ 

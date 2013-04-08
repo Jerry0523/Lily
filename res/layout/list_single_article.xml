@@ -49,23 +49,23 @@
         android:paddingRight="15dip" >
 
         <ImageButton
-            android:id="@+id/sa_edit"
+            android:id="@+id/sa_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:background="@null"
             android:contentDescription="@string/establish"
-            android:src="@drawable/file_edit" />
+            android:src="@drawable/file_delete" />
 
         <ImageButton
-            android:id="@+id/sa_delete"
+            android:id="@+id/sa_edit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@+id/sa_edit"
-            android:layout_marginRight="10dip"
+            android:layout_toLeftOf="@+id/sa_delete"
+            android:layout_marginRight="5dip"
             android:background="@null"
             android:contentDescription="@string/delete"
-            android:src="@drawable/file_delete" />
+            android:src="@drawable/file_edit" />
     </RelativeLayout>
 
 </LinearLayout>
