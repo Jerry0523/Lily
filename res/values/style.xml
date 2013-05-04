@@ -1,16 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <style name="MainTabText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_weight">1.0</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@android:color/background_dark</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:background">@drawable/title_button_back</item>
+    </style>
+
     <style name="ImageButton">
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">42dip</item>
+        <item name="android:layout_height">fill_parent</item>
         <item name="android:layout_centerVertical">true</item>
-        <item name="android:background">@drawable/title_button</item>
+        <item name="android:paddingRight">5dip</item>
+        <item name="android:paddingLeft">5dip</item>
+        <item name="android:background">@drawable/title_button_back</item>
     </style>
 
     <style name="TitleRightImageButton" parent="ImageButton">
         <item name="android:layout_alignParentRight">true</item>
-        <item name="android:minWidth">75dip</item>
     </style>
 
     <style name="NewsPaperTitleText">
@@ -82,24 +93,11 @@
     <style name="TitleLeftBackButton">
         <item name="android:layout_alignParentLeft">true</item>
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">42dip</item>
+        <item name="android:layout_height">fill_parent</item>
         <item name="android:layout_centerVertical">true</item>
+        <item name="android:src">@drawable/back_icon</item>
         <item name="android:background">@drawable/title_button_back</item>
-        <item name="android:textColor">@android:color/background_light</item>
-        <item name="android:minWidth">75dip</item>
-    </style>
-
-    <style name="MainTabButton">
-        <item name="android:textSize">12.0dip</item>
-        <item name="android:gravity">center_horizontal</item>
-        <item name="android:background">@drawable/color_text</item>
-        <item name="android:textColor">@color/main_tab_text</item>
-        <item name="android:layout_width">0.0dip</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginLeft">0.70000005dip</item>
-        <item name="android:layout_marginRight">0.70000005dip</item>
-        <item name="android:button">@null</item>
-        <item name="android:layout_weight">1.0</item>
+        <item name="android:layout_marginRight">10dip</item>
     </style>
 
     <style name="CustomDialog" parent="@android:style/Theme.Dialog">
@@ -137,7 +135,7 @@
         <item name="android:layout_weight">1</item>
         <item name="android:listSelector">@drawable/list_selector</item>
         <item name="android:cacheColorHint">#00000000</item>
-        <item name="android:divider">#558ab6</item>
+        <item name="android:divider">@color/holo</item>
         <item name="android:dividerHeight">1dip</item>
         <item name="android:scrollbars">vertical</item>
     </style>

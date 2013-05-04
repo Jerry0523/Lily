@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-	private static int VERSION = 4;
+	private static int VERSION = 5;
 	private static String CREATE_USERINFO_TABLE = "create table userinfo(_id INTEGER PRIMARY KEY,username text,password text)";
 	private static String CREATE_BOARD_TABLE = "create table board(_id INTEGER PRIMARY KEY,english text,chinese text)";
 	private static String CREATE_FAV_TABLE = "create table fav(_id INTEGER PRIMARY KEY,english text,chinese text,islocal integer)";
@@ -14,6 +14,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static String CREATE_BLOCK_TABLE = "create table block(_id INTEGER PRIMARY KEY,name text)";
 	private static String CREATE_COLLECTION = "create table collection(_id INTEGER PRIMARY KEY,author text, title text,board text,contenturl text)";
 	private static String CREATE_FRIENDS = "create table friends(_id INTEGER PRIMARY KEY,name text)";
+	private static String CREATE_MAILS = "create table mails(_id INTEGER PRIMARY KEY,poster text, content text,contenturl text,time integer, isread integer, type integer)";
 	
 	public DatabaseHelper(Context context, String name, CursorFactory factory,
 			int version) {
@@ -37,6 +38,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL(CREATE_BLOCK_TABLE);
 		db.execSQL(CREATE_COLLECTION);
 		db.execSQL(CREATE_FRIENDS);
+		db.execSQL(CREATE_MAILS);
 		String [] settingArray = getSettingArray();
 		String [] boardArray = getBoardArray();
 		for(int i = 0; i < settingArray.length; i++) {
@@ -49,9 +51,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		if(oldVersion < 4) {
-			db.execSQL(CREATE_COLLECTION);
-			db.execSQL(CREATE_FRIENDS);
+		if(oldVersion < 5) {
+			db.execSQL(CREATE_MAILS);
 		}
 	}
 	

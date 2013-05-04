@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@drawable/body_background"
+    android:background="@drawable/mask_body"
     android:orientation="vertical" >
 
     <RelativeLayout
@@ -10,16 +10,17 @@
         android:layout_height="50dip"
         android:background="@drawable/title_background" >
 
-        <Button
+        <ImageButton
             android:id="@+id/sign_exit"
             style="@style/TitleLeftBackButton"
-            android:text="@string/back" />
+            android:contentDescription="@string/back" />
 
         <TextView
             android:id="@+id/sign_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/sign_exit"
             android:text="@string/sign"
             android:textSize="20sp" />
 
@@ -86,11 +87,11 @@
     <EditText
         android:id="@+id/sign_sign"
         android:layout_width="fill_parent"
-        android:layout_height="80dip"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="15dip"
         android:layout_marginRight="15dip"
         android:layout_marginTop="15dip"
-        android:background="@drawable/edit_text"
+        android:background="@drawable/edit_text_background"
         android:gravity="top"
         android:hint="@string/sign_hint"
         android:inputType="textMultiLine"

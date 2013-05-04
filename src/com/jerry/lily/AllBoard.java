@@ -4,39 +4,74 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import com.jerry.utils.DatabaseDealer;
-
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AlphabetIndexer;
 import android.widget.BaseAdapter;
-import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 
+import com.jerry.utils.DatabaseDealer;
+
 public class AllBoard extends ListActivity implements OnClickListener{
 	private List<String> allBoardList;
+	private EditText searchEditor;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.allboard);
 		initComponents();
 	}
-	@SuppressWarnings("unchecked")
+	
 	private void initComponents() {
 		if(DatabaseDealer.getSettings(AllBoard.this).isNight()) {
 			((LinearLayout)findViewById(R.id.all_board_body)).setBackgroundDrawable(null);
 		}
-		((Button)findViewById(R.id.ab_back)).setOnClickListener(this);
-		allBoardList = DatabaseDealer.getAllBoardList(this);
-		Collections.sort(allBoardList,new MyComparator());
+		
+		allBoardList = DatabaseDealer.getAllBoardList(this, "");
+		searchEditor = (EditText) findViewById(R.id.ab_search_editor);
 		setListAdapter(new MyArrayAdapter(R.layout.list_edit_item));
+		
+		findViewById(R.id.ab_back).setOnClickListener(this);
+		findViewById(R.id.ab_search).setOnClickListener(this);
+		
+		searchEditor.addTextChangedListener(new TextWatcher() {
+			
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				
+			}
+			
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				
+			}
+			
+			@Override
+			public void afterTextChanged(Editable s) {
+				allBoardList.clear();
+				allBoardList.addAll(DatabaseDealer.getAllBoardList(AllBoard.this, s.toString()));
+				getListAdapter().notifyDataSetChanged();
+			}
+		});
+	}
+	
+	@Override
+	public BaseAdapter getListAdapter() {
+		// TODO Auto-generated method stub
+		return (BaseAdapter) super.getListAdapter();
 	}
 
 	@Override
@@ -55,20 +90,6 @@ public class AllBoard extends ListActivity implements OnClickListener{
 		overridePendingTransition(R.anim.keep_origin,R.anim.out_to_down); 
 	}
 
-	@SuppressWarnings("rawtypes")
-	class MyComparator implements Comparator{ 
-		public MyComparator(){ 
-			super(); 
-		} 
-
-		public int compare(Object o1, Object o2)   { 
-			String stringA = (String)o1; 
-			String stringB = (String)o2; 
-			return (stringA.toUpperCase()).compareTo(stringB.toUpperCase()); 
-		} 
-
-	}
-	
 	public static final class ViewHolder{
 		public TextView boardName;
 	}
@@ -133,6 +154,14 @@ public class AllBoard extends ListActivity implements OnClickListener{
 	public void onClick(View v) {
 		if(v.getId() == R.id.ab_back) {
 			onBackPressed();
+		} else if(v.getId() == R.id.ab_search) {
+			if(searchEditor.getVisibility() == View.VISIBLE) {
+				searchEditor.setText("");
+				searchEditor.setVisibility(View.GONE);
+			} else {
+				searchEditor.setVisibility(View.VISIBLE);
+				searchEditor.requestFocus();
+			}
 		}
 	}
 

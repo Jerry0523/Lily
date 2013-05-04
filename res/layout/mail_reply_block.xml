@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/textview_4_mailblock"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="15dip"
+    android:layout_marginRight="10dip"
+    android:layout_marginTop="10dip"
+    android:background="@drawable/chat_background2"
+    android:gravity="top"
+    android:paddingBottom="10dip"
+    android:paddingLeft="20dip"
+    android:paddingRight="20dip"
+    android:paddingTop="10dip"
+    android:textColor="@android:color/background_dark"
+    android:textSize="17sp" />

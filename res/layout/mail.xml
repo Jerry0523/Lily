@@ -10,15 +10,16 @@
         android:layout_height="50dip"
         android:background="@drawable/title_background" >
 
-        <Button
+        <ImageButton
             android:id="@+id/mail_quit"
             style="@style/TitleLeftBackButton"
-            android:text="@string/back" />
+            android:contentDescription="@string/back" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/mail_quit"
             android:text="@string/mail"
             android:textSize="20sp" />
 
@@ -32,5 +33,19 @@
     <com.jerry.widget.XListView
         android:id="@android:id/list"
         style="@style/listview" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="55dip"
+        android:padding="5dip"
+        android:background="@drawable/list_head_background" >
+
+        <Button
+            android:id="@+id/mail_load_more"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/alert_button"
+            android:text="载入更多" />
+    </LinearLayout>
 
 </LinearLayout>

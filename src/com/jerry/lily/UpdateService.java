@@ -14,8 +14,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import com.jerry.utils.FileDealer;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -29,6 +27,8 @@ import android.os.Looper;
 import android.os.Message;
 import android.widget.RemoteViews;
 import android.widget.Toast;
+
+import com.jerry.utils.FileDealer;
 
 public class UpdateService extends Service{
 	private NotificationManager nm;

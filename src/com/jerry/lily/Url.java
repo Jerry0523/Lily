@@ -2,14 +2,12 @@ package com.jerry.lily;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.PendingIntent.OnFinished;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
 
 import com.jerry.widget.IOSWaitingDialog;
 
@@ -26,10 +24,9 @@ public class Url extends Activity implements OnClickListener{
 		setContentView(R.layout.url);
 		String url = getIntent().getStringExtra("url");
 		
-		Button backButton = (Button) findViewById(R.id.url_bbutton);
 		webView = (WebView) findViewById(R.id.url_webview);
 		
-		backButton.setOnClickListener(this);
+		findViewById(R.id.url_bbutton).setOnClickListener(this);
 		webView.setWebViewClient(new WebViewClient() {  
 			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, String url) {

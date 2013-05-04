@@ -44,23 +44,23 @@ public class TopListAdapter extends BaseAdapter{
 		if(convertView == null) {
 			convertView = mInflater.inflate(layoutID, null);
 			holder = new ViewHolder();
-			holder.author = (TextView) convertView.findViewById(R.id.author);
-			holder.board = (TextView) convertView.findViewById(R.id.board);
-			holder.title = (TextView) convertView.findViewById(R.id.title);
+			holder.left = (TextView) convertView.findViewById(R.id.left_sub_text);
+			holder.right = (TextView) convertView.findViewById(R.id.right_sub_text);
+			holder.content = (TextView) convertView.findViewById(R.id.content_text);
 			convertView.setTag(holder);
 		} else {
 			holder = (ViewHolder) convertView.getTag();
 		}
 		Article article = getItem(position);
-		holder.author.setText(article.getAuthorName());
-		holder.board.setText(article.getBoard());
-		holder.title.setText(article.getTitle());
+		holder.left.setText(article.getAuthorName());
+		holder.right.setText(article.getGroup());
+		holder.content.setText(article.getTitle());
 		return convertView;
 	}
 
 	private static final class ViewHolder{
-		public TextView title;
-		public TextView author;
-		public TextView board;
+		public TextView content;
+		public TextView left;
+		public TextView right;
 	}
 }

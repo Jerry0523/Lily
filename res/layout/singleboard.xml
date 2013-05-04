@@ -10,16 +10,17 @@
         android:layout_height="50dip"
         android:background="@drawable/title_background" >
 
-        <Button
+        <ImageButton
             android:id="@+id/sb_bbutton"
             style="@style/TitleLeftBackButton"
-            android:text="@string/back" />
+            android:contentDescription="@string/back" />
 
         <TextView
             android:id="@+id/sb_board"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/sb_bbutton"
             android:textIsSelectable="false"
             android:textSize="20sp" />
 

@@ -18,16 +18,26 @@ public class Constants {
 	
 	public static final int BROWSER = 10;
 	
+	public static final int ADD_FRIEND = 11;
+	public static final int ADD_BLOCK = 12;
+	public static final int SEND_MAIL = 13;
+	public static final int GO_TO_BLOG = 14;
+	
+	public static final int MAIL_TYPE_NORMAL = 0;
+	public static final int MAIL_TYPE_SENT = 2;
+	
 	public static final String SIGN = "http://bbs.nju.edu.cn/file/W/WStaotao/sign.png";
 	public static final String REG_URL = "http[\\S]*\\s";
-	public static final String REG_PIC = "http[\\S]*((jpg)|(png)|(jpeg))";
+	public static final String REG_PIC = "http[\\S]*((jpg)|(png)|(jpeg)|(gif))";
 	
 	public static final String REG_AT = "@\\[uid\\][\\S]*\\[/uid\\]";
 	public static final String REG_AUTHOR = "http://bbs.nju.edu.cn/[\\S]*bbsqry\\?userid=[\\S]*";
 	public static final String REG_BOARD = "http://bbs.nju.edu.cn/[\\S]*board\\?board=[\\S]*";
 	public static final String REG_ARTICLE = "http://bbs.nju.edu.cn/[\\S]*bbstcon\\?board=[\\S]*&file=M.[\\S]*.A";
+	public static final String REG_MAIL_DEVIDE = "[<a href='javascript:location=location'>Ë¢ÐÂ</a>] ";
 	
 	public static final SimpleDateFormat DATE_FORMAT =  new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy",Locale.ENGLISH);
+	public static final SimpleDateFormat DATE_FORMAT2 = new SimpleDateFormat("MMM dd HH:mm yyyy",Locale.ENGLISH);
 	
 	public static final String[] EMOTION_RESOURCE_ARRAY = {"[:-b]","[:-8]","[;PT]","[:hx]","[;K]","[:E]","[:-(]","[;hx]","[:-v]","[;xx]",
 		"[:@]","[:)]","[:(]","[:$]","[:D]","[:Q]","[:T]","[:-|]","[;P]","[;-D]","[:!]","[:L]",

@@ -12,17 +12,40 @@
         android:layout_height="50dip"
         android:background="@drawable/title_background" >
 
-        <Button
+        <ImageButton
             android:id="@+id/ab_back"
             style="@style/TitleLeftBackButton"
-            android:text="@string/pre_board_back" />
+            android:contentDescription="@string/back" />
 
         <TextView
+            android:id="@+id/ab_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/ab_back"
             android:text="@string/all_board"
             android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/ab_search_editor"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_toLeftOf="@+id/ab_search"
+            android:layout_toRightOf="@+id/ab_title"
+            android:background="@drawable/edit_text_background"
+            android:hint="输入文字以查询"
+            android:padding="5dip"
+            android:visibility="gone"
+            android:layout_marginBottom="5dip"
+            android:textColor="@android:color/background_light"
+            android:textColorHint="@color/holo" />
+
+        <ImageButton
+            android:id="@+id/ab_search"
+            style="@style/ImageButton"
+            android:layout_alignParentRight="true"
+            android:contentDescription="@string/back"
+            android:src="@drawable/search" />
     </RelativeLayout>
 
     <ListView

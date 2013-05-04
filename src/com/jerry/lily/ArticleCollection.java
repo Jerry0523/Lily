@@ -4,22 +4,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.jerry.model.Article;
-import com.jerry.utils.DatabaseDealer;
-
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
+import com.jerry.model.Article;
+import com.jerry.utils.DatabaseDealer;
+
 public class ArticleCollection extends ListActivity{
-	private Button back;
 	private SimpleAdapter mAdapter;
 	private List<Map<String, Object>> dataMap;
 	private List<Article> articleList;
@@ -45,7 +43,7 @@ public class ArticleCollection extends ListActivity{
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
 		Intent intent = new Intent(this, ArticleActivity.class);
-		intent.putExtra("board", articleList.get(position).getBoard());
+		intent.putExtra("board", articleList.get(position).getGroup());
 		intent.putExtra("contentUrl", articleList.get(position).getContentUrl());
 		intent.putExtra("title", articleList.get(position).getTitle());
 		startActivity(intent);
@@ -55,14 +53,13 @@ public class ArticleCollection extends ListActivity{
 	private void initComponents() {
 		articleList = DatabaseDealer.getArticleColliection(ArticleCollection.this);
 		dataMap = getData();
-		back = (Button)findViewById(R.id.search_result_back);
-		back.setOnClickListener(new OnClickListener() {
+		findViewById(R.id.search_result_back).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				onBackPressed();
 			}
 		});
-		int textResourceId = DatabaseDealer.getSettings(ArticleCollection.this).isNight() ? R.layout.list_top10_night : R.layout.list_top10;
+		int textResourceId = DatabaseDealer.getSettings(ArticleCollection.this).isNight() ? R.layout.list_item_night : R.layout.list_item;
 		mAdapter = new SimpleAdapter(this, dataMap, textResourceId, new String[] {"title","author","board"}, new int[] {R.id.title, R.id.author, R.id.board});
 		setListAdapter(mAdapter);
 	}
@@ -73,7 +70,7 @@ public class ArticleCollection extends ListActivity{
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("title", article.getTitle());
 			map.put("author", "×÷Õß:" + article.getAuthorName());
-			map.put("board", "°æ¿é:"+ article.getBoard());
+			map.put("board", "°æ¿é:"+ article.getGroup());
 			list.add(map);
 		}
 		return list;

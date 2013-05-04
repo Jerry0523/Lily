@@ -1,6 +1,7 @@
 package com.jerry.utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import android.content.ContentValues;
@@ -10,6 +11,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
 import com.jerry.model.Article;
+import com.jerry.model.Mail;
+import com.jerry.model.MailGroup;
 
 public class DatabaseDealer {
 	private static final String DEFAULT_DATABASE_NAME = "LILY";
@@ -18,6 +21,102 @@ public class DatabaseDealer {
 		DatabaseHelper dbHelper = new DatabaseHelper(context, DEFAULT_DATABASE_NAME);
 		SQLiteDatabase database = dbHelper.getReadableDatabase();
 		return database;
+	}
+
+	public static final String getLastMailTargetUrl(Context context) {
+		SQLiteDatabase db = createDataBase(context);
+		Cursor cursor = db.rawQuery("select value from settings where key = 'mailurl'",null);
+		if(cursor.moveToNext()) {
+			return cursor.getString(0);
+		}
+		return "";
+	}
+
+	public static final void syncLastMailTargetUrl(Context context, String url) {
+		SQLiteDatabase db = createDataBase(context);
+		Cursor cursor = db.rawQuery("select value from settings where key = 'mailurl'",null);
+		if(!cursor.moveToNext()) {
+			db.execSQL("INSERT INTO settings(key,value) VALUES ('mailurl','abc')");
+		} else if(url.length() > 0){
+			String old = cursor.getString(0);
+			if(old.length() == 0) {
+				cursor.close();
+				db.close();
+				return;
+			}
+			String reg = "?start=";
+			if(old.contains(reg)) {
+				int oldValue = Integer.valueOf(old.substring(old.indexOf(reg) + reg.length()));
+				if(url.contains(reg)) {
+					int newValue = Integer.valueOf(url.substring(url.indexOf(reg) + reg.length()));
+					if(oldValue <= newValue) {
+						cursor.close();
+						db.close();
+						return;
+					}
+				}
+			}
+		}
+		cursor.close();
+		db.execSQL("update settings set value='" + url + "' where key = 'mailurl'");
+		db.close();
+	}
+
+	public static final List<Mail> getMailListByPoster(Context context,String poster) {
+		SQLiteDatabase db = createDataBase(context);
+		List<Mail> mailList = new ArrayList<Mail>();
+		Cursor cursor = db.rawQuery("select content, time, type from mails where poster = '" + poster + "' order by time asc",null);
+		while(cursor.moveToNext()){
+			Mail mail = new Mail();
+			mail.setContent(cursor.getString(0));
+			mail.setTime(cursor.getLong(1));
+			mail.setType(cursor.getInt(2));
+			mailList.add(mail);
+		}
+		db.execSQL("update mails set isread = 1 where poster='" + poster + "' and isread = 0");
+		cursor.close();
+		db.close();
+		return mailList;
+	}
+
+	public static final int getStoredLatestMailCode(Context context, boolean isLatest) {
+		SQLiteDatabase db = createDataBase(context);
+		Cursor cursor = db.rawQuery("select contenturl from mails where type <> " + Constants.MAIL_TYPE_SENT + " order by time " + (isLatest ? "desc" : "asc") + " limit 0,1",null);
+		while(cursor.moveToNext()){
+			String contentUrl = cursor.getString(0);
+			Mail mail = new Mail();
+			mail.setContentUrl(contentUrl);
+			return mail.hashCode();
+		}
+		cursor.close();
+		db.close();
+		return 0;
+	}
+
+	public static final List<MailGroup> getMailByGroup(Context context) {
+		List<MailGroup> group = new ArrayList<MailGroup>();
+		SQLiteDatabase db = createDataBase(context);
+		Cursor cursor = db.rawQuery("select poster, content, time, isread ,type from mails group by poster order by time desc",null);
+		while(cursor.moveToNext()){
+			String poster = cursor.getString(0);
+			String content = cursor.getString(1);
+			long time = cursor.getLong(2);
+			boolean isRead = (cursor.getInt(3) == 0 ? false : true);
+			int type = cursor.getInt(4);
+			Mail mail = new Mail(poster, content, time, isRead, type);
+			group.add(new MailGroup(poster, mail));
+		}
+		cursor.close();
+		db.close();
+		return group;
+	}
+
+	public static final void insertMails(Context context, List<Mail> mailList) {
+		SQLiteDatabase db = createDataBase(context);
+		for(Mail mail : mailList) {
+			mail.insert(context, db);
+		}
+		db.close();
 	}
 
 	public static final void deleteFromBlock(Context context, String name) {
@@ -61,7 +160,7 @@ public class DatabaseDealer {
 		db.execSQL("update settings set value = '" + value + "' where key = '" + key + "'");
 		db.close();
 	}
-	
+
 	public static final List<String> getFriendsList(Context context) {
 		List<String> list = new ArrayList<String>();
 		SQLiteDatabase db = createDataBase(context);
@@ -71,7 +170,7 @@ public class DatabaseDealer {
 		}
 		return list;
 	}
-	
+
 	public static final List<Article> getArticleColliection(Context context) {
 		List<Article> list = new ArrayList<Article>();
 		SQLiteDatabase db = createDataBase(context);
@@ -80,7 +179,7 @@ public class DatabaseDealer {
 			Article article = new Article();
 			article.setAuthorName(cursor.getString(0));
 			article.setTitle(cursor.getString(1));
-			article.setBoard(cursor.getString(2));
+			article.setGroup(cursor.getString(2));
 			article.setContentUrl(cursor.getString(3));
 			list.add(article);
 		}
@@ -91,16 +190,16 @@ public class DatabaseDealer {
 
 	public static final void insertArticleCollection(Context context, Article article) {
 		SQLiteDatabase db = createDataBase(context);
-		db.execSQL("INSERT INTO collection(author, title,board,contenturl) VALUES ('" + article.getAuthorName() + "', '" + article.getTitle() + "','" + article.getBoard() + "','" + article.getContentUrl() + "')");
+		db.execSQL("INSERT INTO collection(author, title,board,contenturl) VALUES ('" + article.getAuthorName() + "', '" + article.getTitle() + "','" + article.getGroup() + "','" + article.getContentUrl() + "')");
 		db.close();
 	}
-	
+
 	public static final void insertFriends(Context context, String name) {
 		SQLiteDatabase db = createDataBase(context);
 		db.execSQL("INSERT INTO friends(name) VALUES ('" + name + "')");
 		db.close();
 	}
-	
+
 	private static final void insertSettings(Context context, String key, String value) {
 		SQLiteDatabase db = createDataBase(context);
 		db.execSQL("INSERT INTO settings(key, value) VALUES ('" + key + "', '" + value + "')");
@@ -223,19 +322,23 @@ public class DatabaseDealer {
 		db.close();
 		return fav;
 	}
-	
+
 	public static final void deleteSpecialFav(Context context,String boardName) {
 		SQLiteDatabase db = createDataBase(context);
 		db.execSQL("delete from fav where english = '" + boardName + "'");
 	}
 
-	public static List<String> getAllBoardList(Context context) {
+
+	public static List<String> getAllBoardList(Context context, String query) {
 		SQLiteDatabase db = createDataBase(context);
-		Cursor cursor = db.rawQuery("select distinct english,chinese from board",null);
+		String queryBlock = query.length() > 0 ? " where english like '%" 
+				+ query + "%' or chinese like '%" + query + "%'" : "";
+		Cursor cursor = db.rawQuery("select distinct english,chinese from board" + queryBlock,null);
 		List<String> fav = new ArrayList<String>();
 		while(cursor.moveToNext()) {
 			fav.add(cursor.getString(0) + "(" + cursor.getString(1) + ")");
 		}
+		Collections.sort(fav,new MyComparator());
 		cursor.close();
 		db.close();
 		return fav;

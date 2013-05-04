@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/article_body"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="50dip"
+        android:background="@drawable/title_background" >
+
+        <ImageButton
+            android:id="@+id/blog_back"
+            style="@style/TitleLeftBackButton"
+            android:contentDescription="@string/back" />
+
+        <TextView
+            android:id="@+id/blog_title"
+            android:layout_width="180dip"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/blog_back"
+            android:gravity="center"
+            android:textIsSelectable="false"
+            android:textSize="20sp" />
+
+        <ImageButton
+            android:id="@+id/blog_more"
+            style="@style/TitleRightImageButton"
+            android:contentDescription="@string/more"
+            android:src="@drawable/more_dot" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+
+        <com.jerry.widget.XListView
+            android:id="@android:id/list"
+            style="@style/xlistview" />
+
+        <com.jerry.widget.PageBackController
+            android:id="@+id/page_controller"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" />
+    </RelativeLayout>
+
+</LinearLayout>

@@ -95,8 +95,6 @@ public class MenuActivity extends Activity implements OnClickListener{
 			onBackPressed();
 			break;
 		case R.id.mm_back:
-			onBackPressed();
-			break;
 		default:
 			onBackPressed();
 			break;

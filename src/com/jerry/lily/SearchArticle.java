@@ -19,7 +19,6 @@ public class SearchArticle extends Activity{
 	private ToggleButton week;
 	private ToggleButton year;
 	
-	private Button back;
 	private Button submit;
 	
 	private int time = 30;
@@ -48,7 +47,6 @@ public class SearchArticle extends Activity{
 		month = (ToggleButton)findViewById(R.id.search_month);
 		year = (ToggleButton)findViewById(R.id.search_year);
 		
-		back = (Button)findViewById(R.id.search_back);
 		submit = (Button)findViewById(R.id.search_submit);
 		
 		day.setOnClickListener(myOnClickListener);
@@ -56,7 +54,7 @@ public class SearchArticle extends Activity{
 		month.setOnClickListener(myOnClickListener);
 		year.setOnClickListener(myOnClickListener);
 		
-		back.setOnClickListener(myOnClickListener);
+		findViewById(R.id.search_back).setOnClickListener(myOnClickListener);
 		submit.setOnClickListener(myOnClickListener);
 	}
 	

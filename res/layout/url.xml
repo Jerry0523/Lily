@@ -9,10 +9,10 @@
         android:layout_height="50dip"
         android:background="@drawable/title_background" >
 
-        <Button
+        <ImageButton
             android:id="@+id/url_bbutton"
             style="@style/TitleLeftBackButton"
-            android:text="@string/back" />
+            android:contentDescription="@string/back" />
     </RelativeLayout>
 
     <WebView

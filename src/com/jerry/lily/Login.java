@@ -17,7 +17,6 @@ import android.os.Message;
 import android.os.Parcelable;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.EditText;
 
 import com.jerry.model.LoginInfo;
@@ -72,10 +71,16 @@ public class Login extends Activity implements OnClickListener{
 		setContentView(R.layout.login);
 		initComponents();
 	}
+	
+	@Override
+	protected void onDestroy() {
+		waitingDialog.dismiss();
+		super.onDestroy();
+	}
 
 	private void login() throws IOException, AccountsException {
-		String username = editUsername.getText().toString();
-		String password = editPassword.getText().toString();
+		String username = editUsername.getText().toString().trim();
+		String password = editPassword.getText().toString().trim();
 		LoginInfo loginInfo = LoginInfo.getInstance(username, password);
 		DatabaseDealer.insert(Login.this, username, password);
 		List<ContentValues> favList = DocParser.synchronousFav(loginInfo);
@@ -97,9 +102,8 @@ public class Login extends Activity implements OnClickListener{
 		editUsername.setText(getIntent().getStringExtra("username"));
 		editPassword.setText(getIntent().getStringExtra("password"));
 
-		((Button)findViewById(R.id.login_exit)).setOnClickListener(this);
-
-		((Button)findViewById(R.id.login_submit)).setOnClickListener(this);
+		findViewById(R.id.login_exit).setOnClickListener(this);
+		findViewById(R.id.login_submit).setOnClickListener(this);
 	}
 	
 	private List<String> getJerryHateAccount() {
@@ -135,7 +139,7 @@ public class Login extends Activity implements OnClickListener{
 				waitingDialog = IOSWaitingDialog.createDialog(Login.this);
 			}
 			waitingDialog.show();
-			Thread loginThread = new Thread(new Runnable() {
+			new Thread(new Runnable() {
 
 				@Override
 				public void run() {
@@ -148,8 +152,7 @@ public class Login extends Activity implements OnClickListener{
 					}
 
 				}
-			});
-			loginThread.start();
+			}).start();
 			break;
 		}
 		

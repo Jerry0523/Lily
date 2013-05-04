@@ -2,29 +2,32 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="@color/gray"
     android:orientation="vertical" >
 
     <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dip"
         android:background="@drawable/title_background" >
 
-        <ImageButton
-            android:id="@+id/all_board"
-            style="@style/ImageButton"
-            android:layout_alignParentLeft="true"
-            android:contentDescription="@string/all_board"
-            android:minWidth="75dip"
-            android:src="@drawable/all_board"
-            android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/main_title"
+        <ImageView
+            android:id="@+id/main_logo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:textIsSelectable="false"
-            android:textSize="20sp" />
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/about"
+            android:paddingLeft="10dip"
+            android:paddingRight="10dip"
+            android:src="@drawable/logo" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/main_logo"
+            android:text="@string/logo_name"
+            android:textColor="@android:color/background_light"
+            android:textSize="18sp" />
 
         <ImageButton
             android:id="@+id/top_set"
@@ -34,53 +37,62 @@
 
         <ImageButton
             android:id="@+id/board_edit"
-            style="@style/TitleRightImageButton"
+            style="@style/ImageButton"
+            android:layout_toLeftOf="@+id/top_set"
             android:contentDescription="@string/delete_pic"
             android:src="@drawable/new_element"
             android:visibility="gone" />
+
+        <ImageButton
+            android:id="@+id/all_board"
+            style="@style/ImageButton"
+            android:layout_toLeftOf="@+id/board_edit"
+            android:contentDescription="@string/all_board"
+            android:src="@drawable/all_board"
+            android:visibility="gone" />
     </RelativeLayout>
+
+    <TableRow
+        android:layout_width="fill_parent"
+        android:layout_height="40dip"
+        android:background="@drawable/tab_background"
+        android:gravity="center" >
+
+        <TextView
+            android:id="@+id/main_tab_top"
+            style="@style/MainTabText"
+            android:text="@string/top_short" />
+
+        <TextView
+            android:id="@+id/main_tab_board"
+            style="@style/MainTabText"
+            android:text="@string/board" />
+
+        <TextView
+            android:id="@+id/main_tab_hot"
+            style="@style/MainTabText"
+            android:text="@string/hot" />
+
+        <TextView
+            android:id="@+id/main_tab_center"
+            style="@style/MainTabText"
+            android:text="@string/information" />
+    </TableRow>
+
+    <ImageView
+        android:id="@+id/cursor"
+        android:layout_width="fill_parent"
+        android:layout_height="3dip"
+        android:contentDescription="@string/about"
+        android:scaleType="matrix"
+        android:src="@drawable/cursor" />
 
     <android.support.v4.view.ViewPager
         android:id="@+id/v_Pager"
         android:layout_width="fill_parent"
         android:layout_height="0dip"
         android:layout_weight="1.0"
-        android:background="@android:color/white" />
-
-    <RadioGroup
-        android:id="@+id/radio"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:background="@drawable/tab_background"
-        android:gravity="bottom"
-        android:orientation="horizontal"
-        android:paddingTop="5.0dip" >
-
-        <RadioButton
-            android:id="@+id/top"
-            style="@style/MainTabButton"
-            android:checked="true"
-            android:drawableTop="@drawable/tab_top"
-            android:text="@string/top_short" />
-
-        <RadioButton
-            android:id="@+id/board"
-            style="@style/MainTabButton"
-            android:drawableTop="@drawable/tab_board"
-            android:text="@string/board" />
-
-        <RadioButton
-            android:id="@+id/hot"
-            style="@style/MainTabButton"
-            android:drawableTop="@drawable/tab_hot"
-            android:text="@string/hot" />
-
-        <RadioButton
-            android:id="@+id/center"
-            style="@style/MainTabButton"
-            android:drawableTop="@drawable/tab_center"
-            android:text="@string/information" />
-    </RadioGroup>
+        android:background="@android:color/white" >
+    </android.support.v4.view.ViewPager>
 
 </LinearLayout>

@@ -9,20 +9,23 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.animation.AnimationUtils;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
-import android.widget.RadioGroup;
-import android.widget.TextView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.jerry.model.Article;
@@ -42,13 +45,19 @@ import com.jerry.widget.XListView.IXListViewListener;
 @SuppressLint("HandlerLeak")
 public class LilyActivity extends Activity implements OnClickListener,OnPageChangeListener{
 	private ViewPager viewPager;
+	private ImageView imageView;// 动画图片
+	private int offset = 0;// 动画图片偏移量
+	private int currIndex = 0;// 当前页卡编号
+	private int bmpW;// 动画图片宽度
+
+	private long mExitTime;
+
+
 	private List<View> viewList;
 
 	private List<Article> topList;
 	private List<String> favList;
 	private List<Article> hotList;
-
-	private RadioGroup tabRadioGroup;
 
 	private XListView[] listViewArray;
 	private BaseAdapter[] adapterArray;
@@ -56,9 +65,6 @@ public class LilyActivity extends Activity implements OnClickListener,OnPageChan
 	private ImageButton setButton;
 	private ImageButton boardEditButton;
 	private ImageButton allBoardButton;
-	private TextView mainTitle;
-
-	private IOSAlertDialog quitDialog;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -81,28 +87,36 @@ public class LilyActivity extends Activity implements OnClickListener,OnPageChan
 		viewList.add(initHotView());
 		viewList.add(initCenterView());
 
-		viewPager = (ViewPager) findViewById(R.id.v_Pager);
-		viewPager.setAdapter(new MainPageAdapter(viewList));
-		viewPager.setOnPageChangeListener(this);
-
-		tabRadioGroup = (RadioGroup) findViewById(R.id.radio);
-		findViewById(R.id.top).setOnClickListener(this);
-		findViewById(R.id.board).setOnClickListener(this);
-		findViewById(R.id.hot).setOnClickListener(this);
-		findViewById(R.id.center).setOnClickListener(this);
+		initViewPager();
 
 		setButton = ((ImageButton)findViewById(R.id.top_set));
 		boardEditButton = ((ImageButton)findViewById(R.id.board_edit));
 		allBoardButton = ((ImageButton)findViewById(R.id.all_board));
-		mainTitle = ((TextView)findViewById(R.id.main_title));
 
 		setButton.setOnClickListener(this);
 		boardEditButton.setOnClickListener(this);
 		allBoardButton.setOnClickListener(this);
-		mainTitle.setOnClickListener(this);
+	}
 
-		afterPageChanged(0);
-		initQuitDialog();
+	private void initViewPager() {
+		imageView= (ImageView) findViewById(R.id.cursor);
+		bmpW = BitmapFactory.decodeResource(getResources(), R.drawable.cursor).getWidth();// 获取图片宽度
+		DisplayMetrics dm = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(dm);
+		int screenW = dm.widthPixels;// 获取分辨率宽度
+		offset = (screenW / 4 - bmpW) / 2;// 计算偏移量
+		Matrix matrix = new Matrix();
+		matrix.postTranslate(offset, 0);
+		imageView.setImageMatrix(matrix);// 设置动画初始位置
+
+		viewPager = (ViewPager) findViewById(R.id.v_Pager);
+		viewPager.setAdapter(new MainPageAdapter(viewList));
+		viewPager.setOnPageChangeListener(this);
+
+		findViewById(R.id.main_tab_top).setOnClickListener(this);
+		findViewById(R.id.main_tab_board).setOnClickListener(this);
+		findViewById(R.id.main_tab_hot).setOnClickListener(this);
+		findViewById(R.id.main_tab_center).setOnClickListener(this);
 	}
 
 	private Handler mHandler = new Handler(){ 
@@ -132,7 +146,7 @@ public class LilyActivity extends Activity implements OnClickListener,OnPageChan
 						Message msg = Message.obtain();
 						msg.arg2 = 0;
 						try {
-							List<Article> tmp = ArticleGroup.getTopArticleTitleList(LilyActivity.this).getArticleList();
+							List<Article> tmp = ArticleGroup.getTopArticleGroup(LilyActivity.this).getArticleList();
 							topList.clear();
 							topList.addAll(tmp);
 							msg.arg1 = 0;
@@ -151,11 +165,12 @@ public class LilyActivity extends Activity implements OnClickListener,OnPageChan
 		};
 		topListView.setXListViewListener(topListViewListener);
 		topListView.setPullLoadEnable(false);
+		topListView.setFooterViewForbidden(true);
 		topListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
 				Intent intent = new Intent(LilyActivity.this, ArticleActivity.class);
-				intent.putExtra("board", topList.get(position - 1).getBoard());
+				intent.putExtra("board", topList.get(position - 1).getGroup());
 				intent.putExtra("contentUrl", topList.get(position - 1).getContentUrl());
 				intent.putExtra("title", topList.get(position - 1).getTitle());
 				startActivity(intent);
@@ -163,7 +178,7 @@ public class LilyActivity extends Activity implements OnClickListener,OnPageChan
 			}
 
 		});
-		TopListAdapter topAdapter = new TopListAdapter(R.layout.list_top10, this, topList);
+		TopListAdapter topAdapter = new TopListAdapter(R.layout.list_item, this, topList);
 		pushListViewAndListAdapter(topListView, topAdapter, 0);
 		return topView;
 	}
@@ -260,7 +275,7 @@ public class LilyActivity extends Activity implements OnClickListener,OnPageChan
 						Message msg = Message.obtain();
 						msg.arg2 = 2;
 						try {
-							List<Article> tmp = ArticleGroup.getHotArticleTitleList().getArticleList();
+							List<Article> tmp = ArticleGroup.getHotArticleGroup().getArticleList();
 							hotList.clear();
 							hotList.addAll(tmp);
 							msg.arg1 = 0;
@@ -280,12 +295,12 @@ public class LilyActivity extends Activity implements OnClickListener,OnPageChan
 		};
 		hotListView.setXListViewListener(hotListViewListener);
 		hotListView.setPullLoadEnable(false);
-		int textResourceId = R.layout.list_hot;
+		int textResourceId = R.layout.list_item;
 		hotListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
 				Intent intent = new Intent(LilyActivity.this, ArticleActivity.class);
-				intent.putExtra("board", hotList.get(position - 1).getBoard());
+				intent.putExtra("board", hotList.get(position - 1).getGroup());
 				intent.putExtra("contentUrl", hotList.get(position - 1).getContentUrl());
 				intent.putExtra("title", hotList.get(position - 1).getTitle());
 				startActivity(intent);
@@ -303,6 +318,7 @@ public class LilyActivity extends Activity implements OnClickListener,OnPageChan
 		centerView.findViewById(R.id.center_collection).setOnClickListener(this);
 		centerView.findViewById(R.id.center_friends).setOnClickListener(this);
 		centerView.findViewById(R.id.center_mail).setOnClickListener(this);
+		centerView.findViewById(R.id.center_blog).setOnClickListener(this);
 		return centerView;
 	}
 
@@ -322,11 +338,15 @@ public class LilyActivity extends Activity implements OnClickListener,OnPageChan
 			overridePendingTransition(R.anim.slide_right_in, R.anim.slide_left_out);
 			break;
 		case R.id.center_mail:
-			startActivity(new Intent(LilyActivity.this, Mail.class));
+			startActivity(new Intent(LilyActivity.this, MailListActivity.class));
+			overridePendingTransition(R.anim.slide_right_in, R.anim.slide_left_out);
+			break;
+		case R.id.center_blog:
+			startActivity(new Intent(LilyActivity.this, BlogTop.class));
 			overridePendingTransition(R.anim.slide_right_in, R.anim.slide_left_out);
 			break;
 		case R.id.top_set:
-			Intent setIntent = new Intent(LilyActivity.this, Set.class);
+			Intent setIntent = new Intent(LilyActivity.this, Preference.class);
 			startActivity(setIntent);
 			overridePendingTransition(R.anim.in_from_up,R.anim.keep_origin);
 			break;
@@ -338,40 +358,21 @@ public class LilyActivity extends Activity implements OnClickListener,OnPageChan
 			startActivity(boardIntent);
 			overridePendingTransition(R.anim.in_from_up,R.anim.keep_origin);
 			break;
-		case R.id.main_title:
-			if(viewPager.getCurrentItem() <= 3) {
-				listViewArray[viewPager.getCurrentItem()].setSelectionAfterHeaderView();
-			}
+		case R.id.main_tab_top:
+			viewPager.setCurrentItem(0, true);
 			break;
-		case R.id.top:
-		case R.id.board:
-		case R.id.hot:
-		case R.id.center:
-			onCheckRadioButton(v.getId());
+		case R.id.main_tab_board:
+			viewPager.setCurrentItem(1, true);
 			break;
+		case R.id.main_tab_hot:
+			viewPager.setCurrentItem(2, true);
+			break;
+		case R.id.main_tab_center:
+			viewPager.setCurrentItem(3, true);
+			break;
+
 		}
 
-	}
-
-	private void onCheckRadioButton(int buttonId) {
-		tabRadioGroup.check(buttonId);
-		int index = 0;
-		switch (buttonId) {
-		case R.id.top:
-			index = 0;
-			break;
-		case R.id.board:
-			index = 1;
-			break;
-		case R.id.hot:
-			index = 2;
-			break;
-		case R.id.center:
-			index = 3;
-			break;
-		}
-		viewPager.setCurrentItem(index, false);
-		viewList.get(index).startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in));
 	}
 
 	@Override
@@ -386,61 +387,37 @@ public class LilyActivity extends Activity implements OnClickListener,OnPageChan
 
 	@Override
 	public void onPageSelected(final int index) {
-		afterPageChanged(index);
-		int id = R.id.top;
-		switch (index) {
-		case 1:
-			id = R.id.board;
-			break;
-		case 2:
-			id = R.id.hot;
-			break;
-		case 3:
-			id = R.id.center;
-			break;
-		}
-		tabRadioGroup.check(id);
-	}
+		int one = offset * 2 + bmpW;
+		Animation animation = new TranslateAnimation(one * currIndex, one * index, 0, 0);//显然这个比较简洁，只有一行代码。
+		currIndex = index;
+		animation.setFillAfter(true);// True:图片停在动画结束位置
+		animation.setDuration(300);
+		imageView.startAnimation(animation);
 
-	private void afterPageChanged(int index) {
 		if(index == 0) {
-			mainTitle.setText(getResources().getString(R.string.top));
-			setButton.setVisibility(View.VISIBLE);
 			boardEditButton.setVisibility(View.GONE);
 			allBoardButton.setVisibility(View.GONE);
 		} else if(index == 1) {
-			mainTitle.setText(getResources().getString(R.string.pre_board));
-			setButton.setVisibility(View.GONE);
 			boardEditButton.setVisibility(View.VISIBLE);
 			allBoardButton.setVisibility(View.VISIBLE);
 		} else if(index == 2) {
-			mainTitle.setText(getResources().getString(R.string.hot_board));
-			setButton.setVisibility(View.GONE);
 			boardEditButton.setVisibility(View.GONE);
 			allBoardButton.setVisibility(View.GONE);
 		} else if(index == 3) {
-			mainTitle.setText(getResources().getString(R.string.information2));
-			setButton.setVisibility(View.GONE);
 			boardEditButton.setVisibility(View.GONE);
 			allBoardButton.setVisibility(View.GONE);
 		}
-	}
-
-	private void initQuitDialog() {
-		android.content.DialogInterface.OnClickListener listener = new android.content.DialogInterface.OnClickListener() {
-
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				ShutDown.shutDownActivity(LilyActivity.this);
-				finish();
-				System.exit(0);
-			}
-		};
-		quitDialog = new IOSAlertDialog.Builder(this).setTitle("提示").setMessage("确定退出应用程序?").setPositiveButton("确定", listener).create();
 	}
 
 	@Override
 	public void onBackPressed() {
-		quitDialog.show();
+		if ((System.currentTimeMillis() - mExitTime) > 2000) {
+			Toast.makeText(this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
+			mExitTime = System.currentTimeMillis();
+		} else {
+			ShutDown.shutDownActivity(this);
+			finish();
+			System.exit(0);
+		}
 	}
 }  

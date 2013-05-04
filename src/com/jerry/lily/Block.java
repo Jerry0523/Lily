@@ -3,16 +3,12 @@ package com.jerry.lily;
 import java.util.List;
 
 import android.app.ListActivity;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 
 import com.jerry.utils.DatabaseDealer;
-import com.jerry.widget.IOSAlertDialog;
 import com.jerry.widget.SimpleEditAdapter;
 
 public class Block extends ListActivity implements OnClickListener{
@@ -41,9 +37,9 @@ public class Block extends ListActivity implements OnClickListener{
 	private void initComponents() {
 		edit = (EditText)findViewById(R.id.block_edit);
 
-		((Button)findViewById(R.id.block_back)).setOnClickListener(this);
-		((Button)findViewById(R.id.block_submit)).setOnClickListener(this);
-		((ImageButton)findViewById(R.id.block_modify)).setOnClickListener(this);
+		findViewById(R.id.block_back).setOnClickListener(this);
+		findViewById(R.id.block_submit).setOnClickListener(this);
+		findViewById(R.id.block_modify).setOnClickListener(this);
 	}
 
 	@Override

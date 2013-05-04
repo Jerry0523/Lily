@@ -44,14 +44,14 @@ public class HotListAdapter extends BaseAdapter{
 		if(convertView == null) {
 			convertView = mInflater.inflate(layoutID, null);
 			holder = new ViewHolder();
-			holder.board = (TextView) convertView.findViewById(R.id.lh_board);
-			holder.title = (TextView) convertView.findViewById(R.id.lh_title);
+			holder.board = (TextView) convertView.findViewById(R.id.right_sub_text);
+			holder.title = (TextView) convertView.findViewById(R.id.content_text);
 			convertView.setTag(holder);
 		} else {
 			holder = (ViewHolder) convertView.getTag();
 		}
 		Article article = getItem(position);
-		holder.board.setText("°æ¿é:"+ article.getBoard());
+		holder.board.setText(article.getGroup());
 		holder.title.setText(article.getTitle());
 		return convertView;
 	}

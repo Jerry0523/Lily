@@ -26,10 +26,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -160,15 +158,15 @@ public class ReplyArticle extends Activity implements OnClickListener{
 		title.setOnClickListener(this);
 		atInput.setOnClickListener(this);
 
-		((Button)findViewById(R.id.reply_submit)).setOnClickListener(this);
-		((Button)findViewById(R.id.reply_quit)).setOnClickListener(this);
+		findViewById(R.id.reply_submit).setOnClickListener(this);
+		findViewById(R.id.reply_quit).setOnClickListener(this);
 
-		((ImageButton)findViewById(R.id.reply_input)).setOnClickListener(this);
-		((ImageButton)findViewById(R.id.reply_pic)).setOnClickListener(this);
-		((ImageButton)findViewById(R.id.reply_photo)).setOnClickListener(this);
-		((ImageButton)findViewById(R.id.reply_expression)).setOnClickListener(this);
-		((ImageButton)findViewById(R.id.reply_at)).setOnClickListener(this);
-		((ImageButton)findViewById(R.id.reply_at_add)).setOnClickListener(this);
+		findViewById(R.id.reply_input).setOnClickListener(this);
+		findViewById(R.id.reply_pic).setOnClickListener(this);
+		findViewById(R.id.reply_photo).setOnClickListener(this);
+		findViewById(R.id.reply_expression).setOnClickListener(this);
+		findViewById(R.id.reply_at).setOnClickListener(this);
+		findViewById(R.id.reply_at_add).setOnClickListener(this);
 		gridView = (GridView)findViewById(R.id.gridview);
 
 		gridView.setAdapter(new EmotionAdapter());
@@ -322,7 +320,7 @@ public class ReplyArticle extends Activity implements OnClickListener{
 		String replyUrl = getIntent().getStringExtra("replyUrl");
 		String authorName = getIntent().getStringExtra("authorName");
 		String boardName = getIntent().getStringExtra("board");
-		String title = "Re: " + getIntent().getStringExtra("title");
+		String title = "Re: " + getIntent().getStringExtra("title").trim();
 		String reIdString = replyUrl.substring(replyUrl.indexOf("M.") + 2);
 		reIdString = reIdString.substring(0, reIdString.indexOf(".A"));
 

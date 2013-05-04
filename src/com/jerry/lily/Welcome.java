@@ -20,7 +20,6 @@ import android.widget.ImageView;
 import com.jerry.model.Article;
 import com.jerry.model.ArticleGroup;
 import com.jerry.utils.DatabaseDealer;
-import com.jerry.utils.DocParser;
 import com.jerry.utils.FileDealer;
 import com.jerry.widget.IOSAlertDialog;
 
@@ -86,24 +85,24 @@ public class Welcome extends Activity{
 				Message msg = Message.obtain();
 				try {
 					Bundle userInfo = DatabaseDealer.query(Welcome.this);
-					List<Article> topList = ArticleGroup.getTopArticleTitleList(Welcome.this).getArticleList();
-					List<Article> hotList = ArticleGroup.getHotArticleTitleList().getArticleList();
+					List<Article> topList = ArticleGroup.getTopArticleGroup(Welcome.this).getArticleList();
+					List<Article> hotList = ArticleGroup.getHotArticleGroup().getArticleList();
 					boolean newMail = false;
 					if(DatabaseDealer.getSettings(Welcome.this).isLogin()) {
 						Intent intent = new Intent(getApplicationContext(), RefreshService.class);
 						startService(intent);
-						List<com.jerry.model.Mail> mailList;
-
-						mailList = DocParser.getMailList(DatabaseDealer.getBlockList(Welcome.this), Welcome.this);
-
-						if(mailList != null) {
-							for(com.jerry.model.Mail mail : mailList) {
-								if(mail.isRead()) {
-									newMail = true;
-									break;
-								}
-							}
-						}
+//						List<com.jerry.model.Mail> mailList;
+//
+//						mailList = MailGroup.getMailList(Welcome.this, null, 0);
+//
+//						if(mailList != null) {
+//							for(com.jerry.model.Mail mail : mailList) {
+//								if(mail.isRead()) {
+//									newMail = true;
+//									break;
+//								}
+//							}
+//						}
 					}
 
 					if(userInfo == null || topList == null || hotList == null) {
@@ -124,7 +123,7 @@ public class Welcome extends Activity{
 					
 					msg.what = 0;
 					msg.obj = intent;
-				} catch (IOException e) {
+				} catch (Exception e) {
 					msg.what = 1;
 				} finally {
 					mHandler.sendMessage(msg);

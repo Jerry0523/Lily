@@ -36,6 +36,7 @@
     <string name="password">密码</string>
     <string name="establish">新建</string>
     <string name="mail">站内信</string>
+    <string name="blog">博客区</string>
     <string name="set">设置</string>
     <string name="post">发帖</string>
     <string name="information">资讯</string>
@@ -51,12 +52,13 @@
     <string name="sign">签名档</string>
     <string name="manage_black">管理黑名单</string>
     <string name="login_when_start">启动时登录</string>
-    <string name="load_pic">加载照片</string>
+    <string name="load_pic">加载图片</string>
     <string name="save_pic">缓存图片至存储卡</string>
     <string name="delete_pic">清空缓存图片</string>
     <string name="delete">删除</string>
     <string name="reply_send_mail">回复时发送站内信提醒</string>
     <string name="app_name">Lily</string>
+    <string name="logo_name">南大小百合</string>
     <string name="xlistview_header_hint_normal">下拉刷新</string>
     <string name="xlistview_header_hint_ready">松开刷新数据</string>
     <string name="xlistview_header_hint_loading">正在加载...</string>

@@ -1,8 +1,5 @@
 package com.jerry.lily;
 
-import com.jerry.utils.Constants;
-import com.jerry.utils.DatabaseDealer;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
@@ -12,14 +9,16 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.jerry.utils.Constants;
+import com.jerry.utils.DatabaseDealer;
+
 public class Sign extends Activity{
 	private Button submit;
-	private Button quit;
 	private EditText edit;
-	
+
 	private ToggleButton preCustom;
 	private ToggleButton custom;
-	
+
 	private String sign;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -36,12 +35,11 @@ public class Sign extends Activity{
 
 	private void initComponents() {
 		submit = (Button)findViewById(R.id.sign_submit);
-		quit = (Button)findViewById(R.id.sign_exit);
 		edit = (EditText)findViewById(R.id.sign_sign);
 		preCustom = (ToggleButton)findViewById(R.id.sign_precustom);
 		custom = (ToggleButton)findViewById(R.id.sign_custom);
 		sign = DatabaseDealer.getSettings(Sign.this).getSign();
-		
+
 		if(sign.equals(Constants.SIGN)) {
 			preCustom.setChecked(true);
 			custom.setChecked(false);
@@ -52,7 +50,7 @@ public class Sign extends Activity{
 			edit.setVisibility(View.VISIBLE);
 			edit.setText(sign);
 		}
-		
+
 		preCustom.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -61,9 +59,9 @@ public class Sign extends Activity{
 				edit.setVisibility(View.INVISIBLE);
 			}
 		});
-		
+
 		custom.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				preCustom.setChecked(false);
@@ -82,7 +80,7 @@ public class Sign extends Activity{
 			}
 		});
 
-		quit.setOnClickListener(new OnClickListener() {
+		findViewById(R.id.sign_exit).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				onBackPressed();

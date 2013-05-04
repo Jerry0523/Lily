@@ -1,6 +1,7 @@
 package com.jerry.model;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -13,16 +14,18 @@ import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.jerry.utils.Constants;
 import com.jerry.utils.DatabaseDealer;
 
 public class Article implements Parcelable{
 	private String title;
 	private String contentUrl;
 	private String authorName;
-	private String board;
+	private String groupName;
 	private long time;
 	private int replyCount;
 	private int viewCount;
+	private String extraUrl;
 	
 	private List<SingleArticle> articleList;
 	private int totalArticleCount;
@@ -31,8 +34,12 @@ public class Article implements Parcelable{
 		
 	}
 	
-	public Article(String url, Context context) throws IOException {
-		articleList = getSingleArticleList(url, context, true);
+	public Article(String url, Context context, boolean isBlog) throws IOException, ParseException {
+		if(isBlog) {
+			articleList = getBlogArticleList(url, context);
+		} else {
+			articleList = getSingleArticleList(url, context, true);
+		}
 	}
 	
 	public void refresh(String url, Context context) throws IOException {
@@ -47,7 +54,7 @@ public class Article implements Parcelable{
 			myArticle.title = source.readString();
 			myArticle.contentUrl = source.readString();
 			myArticle.authorName = source.readString();
-			myArticle.board = source.readString();
+			myArticle.groupName = source.readString();
 			myArticle.replyCount = source.readInt();
 			myArticle.viewCount = source.readInt();
 			myArticle.time = source.readLong();
@@ -65,7 +72,7 @@ public class Article implements Parcelable{
 		parcel.writeString(title);  
 		parcel.writeString(contentUrl);
 		parcel.writeString(authorName);
-		parcel.writeString(board);
+		parcel.writeString(groupName);
 		parcel.writeInt(replyCount);
 		parcel.writeInt(viewCount);
 		parcel.writeLong(time);
@@ -84,16 +91,19 @@ public class Article implements Parcelable{
 		this.contentUrl = contentUrl;
 	}
 	public String getAuthorName() {
+		if(authorName == null) {
+			return "";
+		}
 		return authorName;
 	}
 	public void setAuthorName(String authorName) {
 		this.authorName = authorName;
 	}
-	public String getBoard() {
-		return board;
+	public String getGroup() {
+		return groupName;
 	}
-	public void setBoard(String board) {
-		this.board = board;
+	public void setGroup(String board) {
+		this.groupName = board;
 	}
 	public int getReplyCount() {
 		return replyCount;
@@ -158,7 +168,19 @@ public class Article implements Parcelable{
 		}
 	}
 	
-	private final  List<SingleArticle> getSingleArticleList(String url, Context context, boolean isConstruction) throws IOException {
+	private final List<SingleArticle> getBlogArticleList(String url, Context context) throws IOException, ParseException {
+		List<SingleArticle> list = new ArrayList<SingleArticle>(); 
+		Document doc = Jsoup.connect(url).get();
+		String totalContent = doc.select("textarea").text();
+		SingleArticle article = new SingleArticle();
+		article.setAuthorName(totalContent.substring(totalContent.indexOf("作  者: [uid]") + 11, totalContent.indexOf("[/uid]")));
+		article.setTime(Constants.DATE_FORMAT.parse(totalContent.substring(totalContent.indexOf("时  间: ") + 6, totalContent.indexOf("\n点  击:"))).getTime());
+		article.initContent4Blog(totalContent);
+		list.add(article);
+		return list;
+	}
+	
+	private final List<SingleArticle> getSingleArticleList(String url, Context context, boolean isConstruction) throws IOException {
 		List<String> blockList = DatabaseDealer.getBlockList(context);
 		List<SingleArticle> list = new ArrayList<SingleArticle>(); 
 		Document doc = Jsoup.connect(url).get();
@@ -208,6 +230,14 @@ public class Article implements Parcelable{
 	}
 	
 	public boolean isNeedPullLoadMore() {
-		return totalArticleCount > getCurrentArticleCount();
+		return totalArticleCount > getCurrentArticleCount() - 1;
+	}
+
+	public String getExtraUrl() {
+		return extraUrl;
+	}
+
+	public void setExtraUrl(String extraUrl) {
+		this.extraUrl = extraUrl;
 	}
 }

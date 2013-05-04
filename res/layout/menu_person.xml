@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_gravity="bottom"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/menutop"
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1.0"
+        android:background="@null" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/alert_background"
+        android:orientation="vertical"
+        android:padding="25dip" >
+
+        <Button
+            android:id="@+id/person_send_mail"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/alert_button"
+            android:text="站内信"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/person_add_friend"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:background="@drawable/alert_button"
+            android:text="加为好友"
+            android:textSize="18sp"/>
+
+        <Button
+            android:id="@+id/person_add_block"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:background="@drawable/alert_button"
+            android:text="加入黑名单"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/person_blog"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:background="@drawable/alert_button"
+            android:text="进入博客"
+            android:textSize="18sp"/>
+
+        <Button
+            android:id="@+id/mm_back"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dip"
+            android:background="@drawable/alert_cancel_button"
+            android:text="取消"
+            android:textColor="@android:color/background_light"
+            android:textSize="18sp"/>
+    </LinearLayout>
+
+</LinearLayout>

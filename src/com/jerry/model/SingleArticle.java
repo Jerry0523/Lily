@@ -8,7 +8,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,6 +58,10 @@ public class SingleArticle {
 	public void setTime(long time) {
 		this.time = time;
 	}
+	
+	public long getTimeValue() {
+		return time;
+	}
 
 	public final void formatTime(String content){
 		try {
@@ -74,6 +77,10 @@ public class SingleArticle {
 	
 	public final String getAuthorUrl() {
 		return "http://bbs.nju.edu.cn/bbsqry?userid=" + authorName;
+	}
+	
+	public final void initContent4Blog(String source) {
+		content = source;
 	}
 
 	public final void initContent(String toBeFormatedContent) {
@@ -149,6 +156,22 @@ public class SingleArticle {
 			result = result.replace("[wma]", "<wma>");
 			result = result.replace("[/wma]", "<wma>");
 		}
+	
+		result = SingleArticle.deleteExtraBlankAndSymbol(result);
+		
+		StringBuffer tmp = new StringBuffer();
+		String[] split = result.split("[\t\n]+");
+		for(int i = 0; i < split.length; i++) {
+			tmp.append(split[i]);
+			if((split[i].length() < 38 && i != split.length - 1)) {
+				tmp.append("<br/>");
+			}
+		}
+		result = tmp.toString();
+		return result;
+	}
+	
+	public static final String deleteExtraBlankAndSymbol(String result) {
 		result = result.replaceAll("\\[((1;)*3[1234567](;1)*)*m", "");
 
 		for(int i = 0; i < result.length() - 2; i++) {
@@ -167,38 +190,7 @@ public class SingleArticle {
 				break;
 			}
 		}
-
-		StringBuffer tmp = new StringBuffer();
-		String[] split = result.split("[\t\n]+");
-		for(int i = 0; i < split.length; i++) {
-			tmp.append(split[i]);
-			if((split[i].length() < 38 && i != split.length - 1)) {
-				tmp.append("<br/>");
-			}
-		}
-		result = tmp.toString();
 		return result;
-	}
-
-	public String getDetailTime() {
-		Calendar now = Calendar.getInstance();
-		if(time == 0 || time > now.getTimeInMillis()) {
-			return "未知时间";
-		}
-		long derta = now.getTimeInMillis() - time;
-		if(derta < 60000) {
-			return String.valueOf((int)(derta / 1000)) + "秒前";
-		} else if(derta < 3600000) {
-			return String.valueOf((int)(derta / 60000)) + "分前";
-		} else if(derta < 86400000){
-			return String.valueOf((int)(derta / 3600000)) + "时前";
-		} else if(derta < 2592000000L) {
-			return String.valueOf((int)(derta / 86400000)) + "天前";
-		} else if(derta < 31104000000L) {
-			return String.valueOf((int)(derta / 2592000000L)) + "月前";
-		} else {
-			return String.valueOf((int)(derta / 31104000000L)) + "年前";
-		}
 	}
 
 	public final boolean deleteArticle(Context context) throws IOException {

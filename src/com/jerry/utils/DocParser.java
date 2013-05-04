@@ -44,6 +44,27 @@ import com.jerry.model.Mail;
 import com.jerry.model.SingleArticle;
 
 public class DocParser {
+	
+	public static final String parseTime(long time) {
+		Calendar now = Calendar.getInstance();
+		if(time == 0 || time > now.getTimeInMillis()) {
+			return "未知时间";
+		}
+		long derta = now.getTimeInMillis() - time;
+		if(derta < 60000) {
+			return String.valueOf((int)(derta / 1000)) + "秒前";
+		} else if(derta < 3600000) {
+			return String.valueOf((int)(derta / 60000)) + "分前";
+		} else if(derta < 86400000){
+			return String.valueOf((int)(derta / 3600000)) + "时前";
+		} else if(derta < 2592000000L) {
+			return String.valueOf((int)(derta / 86400000)) + "天前";
+		} else if(derta < 31104000000L) {
+			return String.valueOf((int)(derta / 2592000000L)) + "月前";
+		} else {
+			return String.valueOf((int)(derta / 31104000000L)) + "年前";
+		}
+	}
 
 	public static final String getAllTopicArtileUrl(String url) throws IOException {
 		String topic = null;
@@ -88,7 +109,7 @@ public class DocParser {
 				article.setTitle(content.select("a").text());
 				article.setContentUrl(contentUrl);
 				article.setAuthorName(links.get(0).select("a").text());
-				article.setBoard(contentUrl.substring(contentUrl.indexOf("=") + 1, contentUrl.indexOf("&")));
+				article.setGroup(contentUrl.substring(contentUrl.indexOf("=") + 1, contentUrl.indexOf("&")));
 				list.add(article);
 			}
 		} 
@@ -120,7 +141,10 @@ public class DocParser {
 		httpRequest.setEntity(new UrlEncodedFormEntity(postData, "GB2312"));
 		httpResponse = new DefaultHttpClient().execute(httpRequest);
 		if (httpResponse.getStatusLine().getStatusCode() == 200) {
-
+			Mail mail = new Mail(post2, content, System.currentTimeMillis(), true, Constants.MAIL_TYPE_SENT);
+			List<Mail> mailList = new ArrayList<Mail>();
+			mailList.add(mail);
+			DatabaseDealer.insertMails(context, mailList);
 		}
 	}
 
@@ -164,7 +188,7 @@ public class DocParser {
 		}
 		Document doc = Jsoup.parse(result);
 		String content = doc.select("textarea").get(0).text();
-		content = formatContent(content);
+		//content = formatContent(content);
 		Elements links = doc.select("a");
 		String replyUrl = links.get(links.size() - 3).attr("href");
 		Bundle bundle = new Bundle();
@@ -172,44 +196,6 @@ public class DocParser {
 		bundle.putString("content", content);
 		bundle.putString("postUrl", replyUrl);
 		return bundle;
-	}
-
-	public static final List<Mail> getMailList(List<String> blockList, Context context) throws IOException{
-		List<Mail> list = new ArrayList<Mail>();
-		LoginInfo loginInfo;
-		loginInfo = LoginInfo.getInstance(context);
-		String url = "http://bbs.nju.edu.cn/" + loginInfo.getLoginCode() + "/bbsmail";
-		HttpPost httpRequest = new HttpPost(url);
-		httpRequest.addHeader("Cookie", loginInfo.getLoginCookie());
-		HttpResponse httpResponse;
-		httpResponse = new DefaultHttpClient().execute(httpRequest);
-		String result = "";
-		if (httpResponse.getStatusLine().getStatusCode() == 200) {
-			result = EntityUtils.toString(httpResponse.getEntity());
-		}
-		Elements rows = Jsoup.parse(result).select("tr");
-		for(Element line : rows) {
-			Elements links = line.select("a");
-			if (links.size() == 0) {
-				continue;
-			}
-			if(links.size() == 2) {
-				String authorName = links.get(0).select("a").text();
-				if(blockList.contains(authorName)) {
-					continue;
-				}
-				Mail mail = new Mail();
-				mail.setPoster(authorName);
-				mail.setPosterUrl(links.get(0).select("a").attr("href"));
-				mail.setContentUrl(links.get(1).select("a").attr("href"));
-				mail.setTitle(links.get(1).select("a").text());
-				mail.setTime(line.select("td").get(4).text());
-				mail.setRead(line.select("img").size() != 0);
-				list.add(mail);
-			}
-
-		}
-		return list;
 	}
 
 	private static String compressBitmapByPath(String pathName) throws IOException {
@@ -396,69 +382,5 @@ public class DocParser {
 		}
 
 		return favList;
-	}
-
-	private static final String formatContent(String content) {
-		String result = content.substring(content.indexOf("发信站: 南京大学小百合站 ("));
-		result = result.substring(result.indexOf(")") + 3);
-		result = result.lastIndexOf("--") > 0 ? result.substring(0,result.indexOf("--")) : result;
-		Matcher matcher = Pattern.compile(Constants.REG_URL, Pattern.CASE_INSENSITIVE).matcher(result.toString());
-		StringBuffer newBuffer = new StringBuffer();
-		while (matcher.find()) {
-			String originalValue = matcher.group().trim();
-			String value = originalValue.toLowerCase();
-			if(value.endsWith("jpg") || value.endsWith("gif") || value.endsWith("png") || value.endsWith("jpeg")) {
-				matcher.appendReplacement(newBuffer, "<pic>" +  originalValue + "<pic>");
-			} else {
-				matcher.appendReplacement(newBuffer, "<url>" + originalValue + "<url>");
-			}
-		}
-		matcher.appendTail(newBuffer);
-		result = newBuffer.toString();
-		if(result.contains("[")) {
-			result = result.replace("[:s]", "<emotion>s<emotion>");
-			result = result.replace("[:O]", "<emotion>o<emotion>");
-			result = result.replace("[:|]", "<emotion>v<emotion>");
-			result = result.replace("[:$]", "<emotion>d<emotion>");
-			result = result.replace("[:X]", "<emotion>x<emotion>");
-			result = result.replace("[:'(]", "<emotion>q<emotion>");
-			result = result.replace("[:@]", "<emotion>a<emotion>");
-			result = result.replace("[:-|]", "<emotion>h<emotion>");
-			result = result.replace("[:P]", "<emotion>p<emotion>");
-			result = result.replace("[:D]", "<emotion>e<emotion>");
-			result = result.replace("[:)]", "<emotion>b<emotion>");
-			result = result.replace("[:(]", "<emotion>c<emotion>");
-			result = result.replace("[:Q]", "<emotion>f<emotion>");
-			result = result.replace("[:T]", "<emotion>g<emotion>");
-			result = result.replace("[;P]", "<emotion>i<emotion>");
-			result = result.replace("[;-D]", "<emotion>j<emotion>");
-			result = result.replace("[:!]", "<emotion>k<emotion>");
-			result = result.replace("[:L]", "<emotion>l<emotion>");
-			result = result.replace("[:?]", "<emotion>m<emotion>");
-			result = result.replace("[:U]", "<emotion>n<emotion>");
-			result = result.replace("[:K]", "<emotion>r<emotion>");
-			result = result.replace("[:C-]", "<emotion>t/emotion>");
-			result = result.replace("[;X]", "<emotion>u<emotion>");
-			result = result.replace("[:H]", "<emotion>w<emotion>");
-			result = result.replace("[;bye]", "<emotion>y<emotion>");
-			result = result.replace("[;cool]", "<emotion>z<emotion>");
-			result = result.replace("[:-b]", "<emotion>0<emotion>");
-			result = result.replace("[:-8]", "<emotion>1<emotion>");
-			result = result.replace("[;PT]", "<emotion>2<emotion>");
-			result = result.replace("[:hx]", "<emotion>3<emotion>");
-			result = result.replace("[;K]", "<emotion>4<emotion>");
-			result = result.replace("[:E]", "<emotion>5<emotion>");
-			result = result.replace("[:-(]", "<emotion>6<emotion>");
-			result = result.replace("[;hx]", "<emotion>7<emotion>");
-			result = result.replace("[:-v]", "<emotion>8<emotion>");
-			result = result.replace("[;xx]", "<emotion>9<emotion>");
-		}
-		result = result.replace("[uid]", "<uid>");
-		result = result.replace("[/uid]", "<uid>");
-		result = result.replace("[brd]", "<brd>");
-		result = result.replace("[/brd]", "<brd>");
-		result = result.replaceAll("\\[(1;.*?|37;1|32|33)m", "");
-		result = result.replaceAll("\n", "<br/>");
-		return result;
 	}
 }

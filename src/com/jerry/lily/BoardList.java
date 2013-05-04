@@ -14,8 +14,6 @@ import android.os.Message;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -63,14 +61,12 @@ public class BoardList extends ListActivity implements IXListViewListener, OnCli
 	private void initComponents() {
 		articleList = new ArrayList<Article>();
 		boardName = getIntent().getStringExtra("boardName");
-		Button backButton = (Button) findViewById(R.id.sb_bbutton);
-		ImageButton moreMenu = (ImageButton) findViewById(R.id.sb_menu);
 		TextView title = (TextView) findViewById(R.id.sb_board);
 		controller = (PageBackController) findViewById(R.id.page_controller);
 		title.setText(boardName);
 
-		backButton.setOnClickListener(this);
-		moreMenu.setOnClickListener(this);
+		findViewById(R.id.sb_bbutton).setOnClickListener(this);
+		findViewById(R.id.sb_menu).setOnClickListener(this);
 		title.setOnClickListener(this);
 		controller.setPageBackListener(this);
 		controller.setSibling(getListView());
@@ -84,7 +80,7 @@ public class BoardList extends ListActivity implements IXListViewListener, OnCli
 			switch (msg.what) {
 			case 0:
 				if(getListAdapter() == null) {
-					setListAdapter(new BoardListAdapter(BoardList.this, R.layout.list_board_article, articleList));
+					setListAdapter(new BoardListAdapter(BoardList.this, R.layout.list_item, articleList));
 				} else {
 					getListAdapter().notifyDataSetChanged();
 				}
@@ -114,7 +110,7 @@ public class BoardList extends ListActivity implements IXListViewListener, OnCli
 			public void run() {
 				int result = 0;
 				try {
-					ArticleGroup articleGroup = ArticleGroup.getBoardArticleTitleList(url, boardName, BoardList.this);
+					ArticleGroup articleGroup = ArticleGroup.getBoardArticleGroup(url, boardName, BoardList.this);
 					if(articleGroup == null) {
 						throw new IOException();
 					}
@@ -216,7 +212,7 @@ public class BoardList extends ListActivity implements IXListViewListener, OnCli
 			public void run() {
 				int result = 0;
 				try {
-					ArticleGroup articleGroup = ArticleGroup.getBoardArticleTitleList(nextTargetUrl, boardName, BoardList.this);
+					ArticleGroup articleGroup = ArticleGroup.getBoardArticleGroup(nextTargetUrl, boardName, BoardList.this);
 					if(articleGroup == null) {
 						throw new IOException();
 					}

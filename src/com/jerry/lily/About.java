@@ -7,12 +7,9 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.TextView;
 
 public class About extends Activity{
-	private Button quit;
-	private TextView version;
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.about);
@@ -26,8 +23,6 @@ public class About extends Activity{
 	}
 
 	private void initComponents() {
-		quit = (Button)findViewById(R.id.about_back);
-		version = (TextView)findViewById(R.id.about_version);
 		String version;
 		PackageManager packageManager = getPackageManager();
 		// getPackageName()是你当前类的包名，0代表是获取版本信息
@@ -38,8 +33,8 @@ public class About extends Activity{
 		}catch(NameNotFoundException e) {
 			version = "未知版本";
 		}
-		About.this.version.setText(getString(R.string.lily) + version);
-		quit.setOnClickListener(new OnClickListener() {
+		((TextView)findViewById(R.id.about_version)).setText(getString(R.string.lily) + version);
+		findViewById(R.id.about_back).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				onBackPressed();

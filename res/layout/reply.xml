@@ -10,16 +10,18 @@
         android:layout_height="50dip"
         android:background="@drawable/title_background" >
 
-        <Button
+        <ImageButton
             android:id="@+id/reply_quit"
             style="@style/TitleLeftBackButton"
-            android:text="@string/back" />
+            android:contentDescription="@string/back" />
 
         <TextView
             android:id="@+id/sb_board"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/reply_quit"
+            android:textIsSelectable="false"
             android:textSize="20sp" />
 
         <Button
@@ -36,7 +38,7 @@
         android:ems="10"
         android:hint="@string/title_hint"
         android:padding="10dip"
-        android:textColorHint="#939ea5" />
+        android:textColorHint="@color/holo" />
 
     <TextView
         android:layout_width="fill_parent"
@@ -123,13 +125,15 @@
             android:id="@+id/reply_at_input"
             android:layout_width="0dip"
             android:layout_height="fill_parent"
+            android:layout_marginBottom="2dip"
             android:layout_weight="0.8"
-            android:background="@null"
+            android:background="@drawable/edit_text_background"
             android:gravity="center_vertical"
             android:hint="输入想要@的帐号名"
             android:inputType="textNoSuggestions"
             android:padding="5dip"
-            android:textColor="@android:color/background_light" />
+            android:textColor="@android:color/background_light"
+            android:textColorHint="@color/holo" />
 
         <ImageButton
             android:id="@+id/reply_at_add"

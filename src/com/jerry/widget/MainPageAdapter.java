@@ -50,7 +50,7 @@ public class MainPageAdapter extends PagerAdapter{
 	public Parcelable saveState() {
 		return null;
 	}
-	
+
 	@Override
 	public void startUpdate(View arg0) {
 

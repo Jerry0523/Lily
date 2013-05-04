@@ -20,9 +20,11 @@ public class IOSWaitingDialog extends Dialog {
 		myProgressDialog = new IOSWaitingDialog(context,R.style.iosWaitingDialog);
 		myProgressDialog.setContentView(R.layout.custom_progress_dialog);
 		myProgressDialog.getWindow().getAttributes().gravity = Gravity.CENTER;
+		myProgressDialog.setCancelable(false);
 		return myProgressDialog;
 	}
 
+	@Override
 	public void onWindowFocusChanged(boolean hasFocus){
 		if (myProgressDialog == null){
 			return;

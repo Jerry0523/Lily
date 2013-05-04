@@ -10,18 +10,19 @@
         android:layout_height="50dip"
         android:background="@drawable/title_background" >
 
-        <Button
+        <ImageButton
             android:id="@+id/mreply_back"
             style="@style/TitleLeftBackButton"
-            android:text="@string/back" />
+            android:contentDescription="@string/back" />
 
         <com.jerry.widget.MarqueeTextView
             android:id="@+id/mreply_title"
             android:layout_width="180dip"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/mreply_back"
             android:ellipsize="marquee"
-            android:gravity="center"
+            android:gravity="left"
             android:marqueeRepeatLimit="marquee_forever"
             android:singleLine="true"
             android:textSize="20sp" />
@@ -34,50 +35,35 @@
 
     <ScrollView
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dip"
+        android:layout_weight="1.0"
         android:scrollbars="vertical" >
 
         <LinearLayout
+            android:id="@+id/mreply_block"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
-
-            <TextView
-                android:id="@+id/mreply_content"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dip"
-                android:layout_marginRight="10dip"
-                android:layout_marginTop="15dip"
-                android:background="@drawable/chat_background"
-                android:paddingBottom="20dip"
-                android:paddingLeft="25dip"
-                android:paddingRight="10dip"
-                android:paddingTop="10dip"
-                android:textColor="@android:color/background_dark"
-                android:textIsSelectable="false"
-                android:textSize="17sp" />
-
-            <EditText
-                android:id="@+id/mreply_reply"
-                android:layout_width="fill_parent"
-                android:layout_height="100dip"
-                android:layout_marginLeft="15dip"
-                android:layout_marginRight="10dip"
-                android:layout_marginTop="10dip"
-                android:background="@drawable/chat_background2"
-                android:gravity="top"
-                android:inputType="textMultiLine"
-                android:paddingBottom="10dip"
-                android:paddingLeft="20dip"
-                android:paddingRight="20dip"
-                android:paddingTop="10dip"
-                android:textColor="@android:color/background_dark"
-                android:textSize="17sp" >
-
-                <requestFocus />
-            </EditText>
+            android:orientation="vertical"
+            android:padding="10dip" >
         </LinearLayout>
     </ScrollView>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/input_toolbar_background" >
+
+        <EditText
+            android:id="@+id/mreply_input"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginBottom="2dip"
+            android:background="@drawable/edit_text_background"
+            android:gravity="center_vertical"
+            android:hint="输入回复内容"
+            android:padding="5dip"
+            android:textColor="@android:color/background_light"
+            android:textColorHint="@color/holo" />
+    </LinearLayout>
 
 </LinearLayout>

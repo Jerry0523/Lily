@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -18,7 +17,6 @@ import com.jerry.lily.AllBoard.ViewHolder;
 import com.jerry.utils.DatabaseDealer;
 
 public class Friends extends ListActivity{
-	private Button back;
 	private List<String> nameList;
 	
 	@Override
@@ -49,8 +47,7 @@ public class Friends extends ListActivity{
 
 	private void initComponents() {
 		nameList = DatabaseDealer.getFriendsList(Friends.this);
-		back = (Button)findViewById(R.id.search_result_back);
-		back.setOnClickListener(new OnClickListener() {
+		findViewById(R.id.search_result_back).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				onBackPressed();

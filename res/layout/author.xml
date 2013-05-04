@@ -10,20 +10,22 @@
         android:layout_height="50dip"
         android:background="@drawable/title_background" >
 
-        <Button
+        <ImageButton
             android:id="@+id/author_quit"
             style="@style/TitleLeftBackButton"
-            android:text="@string/back" />
+            android:contentDescription="@string/back" />
 
         <TextView
             android:id="@+id/author_acc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/author_quit"
+            android:textIsSelectable="false"
             android:textSize="20sp" />
 
         <ImageButton
-            android:id="@+id/article_more"
+            android:id="@+id/author_menu"
             style="@style/TitleRightImageButton"
             android:contentDescription="@string/more"
             android:src="@drawable/more_dot" />
@@ -34,9 +36,9 @@
         android:layout_height="fill_parent" >
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent" >
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
 
             <RelativeLayout
                 android:layout_width="fill_parent"
@@ -129,61 +131,6 @@
                     android:layout_margin="10dip"
                     android:gravity="center"
                     android:textColor="@android:color/background_dark" />
-
-                <!--
-        <Button
-            android:id="@+id/author_submit"
-            android:layout_width="wrap_content"
-            android:layout_height="40dip"
-            android:layout_marginRight="5dip"
-            android:layout_marginTop="10dip"
-            android:background="@drawable/alert_button"
-            android:minWidth="50dip"
-            android:text="@string/send"
-            android:visibility="invisible" />
-
-        <EditText
-            android:id="@+id/author_content"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dip"
-            android:background="@drawable/content"
-            android:gravity="top"
-            android:inputType="textMultiLine"
-            android:padding="10dip"
-            android:visibility="invisible" />
-
-        <Button
-            android:id="@+id/author_info"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="15dip"
-            android:layout_marginTop="220dip"
-            android:background="@drawable/author_info_button"
-            android:visibility="invisible" />
-
-        <Button
-            android:id="@+id/author_send_mail"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="15dip"
-            android:layout_marginTop="220dip"
-            android:background="@drawable/send_mail_button" />
-
-        <Button
-            android:id="@+id/author_friend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="15dip"
-            android:layout_marginTop="220dip"
-            android:background="@drawable/friend_button" />
-
-        <Button
-            android:id="@+id/author_block"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="15dip"
-            android:layout_marginTop="220dip" -->
             </RelativeLayout>
         </LinearLayout>
 

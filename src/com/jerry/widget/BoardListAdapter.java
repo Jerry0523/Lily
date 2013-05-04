@@ -38,9 +38,9 @@ public class BoardListAdapter extends BaseAdapter {
 	}
 
 	private static final class ViewHolder{
-		public TextView title;
-		public TextView author;
-		public TextView reply;
+		public TextView content;
+		public TextView left;
+		public TextView right;
 	}
 
 	@Override
@@ -49,18 +49,18 @@ public class BoardListAdapter extends BaseAdapter {
 		if(convertView == null) {
 			convertView = mInflater.inflate(layoutID, null);
 			holder = new ViewHolder();
-			holder.title = (TextView) convertView.findViewById(R.id.lb_title);
-			holder.author = (TextView) convertView.findViewById(R.id.lb_author);
-			holder.reply = (TextView) convertView.findViewById(R.id.lb_reply);
+			holder.content = (TextView) convertView.findViewById(R.id.content_text);
+			holder.left = (TextView) convertView.findViewById(R.id.left_sub_text);
+			holder.right = (TextView) convertView.findViewById(R.id.right_sub_text);
 			convertView.setTag(holder);
 		} else {
 			holder = (ViewHolder) convertView.getTag();
 		}
 
 		Article article = getItem(position);
-		holder.title.setText(article.getTitle());
-		holder.author.setText(article.getAuthorName() + "发表于" + article.getDetailTime());
-		holder.reply.setText(article.getReplyCount() + "/" + article.getViewCount());
+		holder.content.setText(article.getTitle());
+		holder.left.setText(article.getAuthorName() + "发表于" + article.getDetailTime());
+		holder.right.setText(article.getReplyCount() + "/" + article.getViewCount());
 		return convertView;
 	}
 

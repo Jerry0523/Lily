@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,15 +54,15 @@ public class Send2Me extends Activity implements OnClickListener{
 	};
 
 	private void initComponents() {
-		((RelativeLayout)findViewById(R.id.sign_ra1)).setVisibility(View.GONE);
-		((RelativeLayout)findViewById(R.id.sign_ra2)).setVisibility(View.GONE);
-		((Button)findViewById(R.id.sign_exit)).setOnClickListener(this);
+		findViewById(R.id.sign_ra1).setVisibility(View.GONE);
+		findViewById(R.id.sign_ra2).setVisibility(View.GONE);
+		findViewById(R.id.sign_exit).setOnClickListener(this);
 		((TextView)findViewById(R.id.sign_title)).setText("发送反馈");
-		
+
 		Button submit = (Button)findViewById(R.id.sign_submit);
 		submit.setText("提交");
 		submit.setOnClickListener(this);
-		
+
 		edit = (EditText)findViewById(R.id.sign_sign);
 		edit.setHint("输入反馈内容");
 

@@ -18,8 +18,6 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -155,8 +153,6 @@ public class ArticleActivity extends ListActivity implements IXListViewListener,
 	}
 
 	private void initComponents() {
-		Button backButton = (Button) findViewById(R.id.bbutton);
-		ImageButton more = (ImageButton) findViewById(R.id.article_more);
 		controller = (PageBackController) findViewById(R.id.page_controller);
 		MarqueeTextView title = (MarqueeTextView)findViewById(R.id.article_title);
 
@@ -164,8 +160,8 @@ public class ArticleActivity extends ListActivity implements IXListViewListener,
 		title.setOnClickListener(this);
 		controller.setPageBackListener(this);
 		controller.setSibling(getListView());
-		backButton.setOnClickListener(this);
-		more.setOnClickListener(this);
+		findViewById(R.id.bbutton).setOnClickListener(this);
+		findViewById(R.id.article_more).setOnClickListener(this);
 		getListView().setXListViewListener(ArticleActivity.this);
 		userName = DatabaseDealer.query(this).getString("username");
 
@@ -184,7 +180,7 @@ public class ArticleActivity extends ListActivity implements IXListViewListener,
 			Article article = new Article();
 			article.setAuthorName(article.getArticleAuthorName());
 			article.setTitle(getIntent().getStringExtra("title"));
-			article.setBoard(getIntent().getStringExtra("board"));
+			article.setGroup(getIntent().getStringExtra("board"));
 			article.setContentUrl(getIntent().getStringExtra("contentUrl"));
 			DatabaseDealer.insertArticleCollection(ArticleActivity.this, article);
 			Toast.makeText(getApplicationContext(), "文章收藏成功!", Toast.LENGTH_SHORT).show();
@@ -227,12 +223,12 @@ public class ArticleActivity extends ListActivity implements IXListViewListener,
 				int result = 0;
 				try {
 					if(article == null) {
-						article = new Article(ArticleActivity.this.getIntent().getStringExtra("contentUrl"), ArticleActivity.this);
+						article = new Article(ArticleActivity.this.getIntent().getStringExtra("contentUrl"), ArticleActivity.this, false);
 					} else {
 						currentPage = 0;
 						article.refresh(ArticleActivity.this.getIntent().getStringExtra("contentUrl"), ArticleActivity.this);
 					}
-				} catch (IOException e) {
+				} catch (Exception e) {
 					result = 1;
 				} finally {
 					mHandler.sendEmptyMessage(result);

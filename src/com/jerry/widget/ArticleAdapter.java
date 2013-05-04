@@ -20,6 +20,7 @@ import com.jerry.model.Article;
 import com.jerry.model.SingleArticle;
 import com.jerry.tagdealer.TagDealer;
 import com.jerry.utils.DatabaseDealer;
+import com.jerry.utils.DocParser;
 
 
 public abstract class ArticleAdapter extends BaseAdapter {
@@ -81,7 +82,7 @@ public abstract class ArticleAdapter extends BaseAdapter {
 			holder = (ViewHolder) convertView.getTag();
 		}
 		final SingleArticle singleArticle = getItem(position);
-		holder.author.setText(getAuthor(singleArticle) + "发表于" + singleArticle.getDetailTime());
+		holder.author.setText(getAuthor(singleArticle) + "发表于" + DocParser.parseTime(singleArticle.getTimeValue()));
 		holder.reply.setText(context.getResources().getString(R.string.reply_article) +  getFloorValue(position));
 		String articleContent = singleArticle.getContent();
 		holder.content.setText(Html.fromHtml(articleContent, null, TagDealer.getInstance(context)));
